@@ -1,0 +1,36 @@
+
+posit8,10,12 tabulated from C++ as Number in Julia
+compare against float16
+use NearestNeighbors.jl
+add cffi to other posit in C++
+
+
+Inf,Nan
+nextfloat prevfloat
+bits(xxx)
+eps(type)
+typemin typemax
+setrounding(Float64,RoundDown)
+http://web.mit.edu/julia_v0.5.0/.julia-3c9d75391c.amd64_ubuntu1404/share/doc/julia/html/manual/integers-and-floating-point-numbers.html
+BigFloat
+one(T)
+zero(T)
+isfinite isinf isnan
+convert(T,x)
+signbit
+copysign
+flipsign
+abs
+abs2
+
+bitcast(Float64, xor_int(bitcast(UInt64, x), and_int(bitcast(UInt64, y), 0x8000000000000000)))
+
+http://julia-ylwu.readthedocs.io/en/latest/manual/conversion-and-promotion.html#man-conversion-and-promotion
+https://github.com/mauro3/SimpleTraits.jl
+
+
+https://github.com/interplanetary-robot/SigmoidNumbers/blob/a4e779fbae602e9f2b4955a706d106b70ec89ad4/src/SigmoidTypedef.jl
+
+primitive type Sigmoid{N,ES,mode} <: AbstractFloat __BITS end
+
+https://docs.julialang.org/en/stable/manual/types/#Primitive-Types-1
