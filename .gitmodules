@@ -1,0 +1,3 @@
+[submodule "posit"]
+	path = cppposit
+	url = https://github.com/eruffaldi/cppposit.git
