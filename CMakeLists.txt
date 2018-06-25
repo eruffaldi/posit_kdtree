@@ -1,5 +1,5 @@
-add_definitions(--std=c++11)
 add_subdirectory(cppposit)
+add_definitions(--std=c++11)
 include_directories(cppposit/include)
 include_directories(include)
 include_directories(extern)
