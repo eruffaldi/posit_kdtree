@@ -1,4 +1,4 @@
 [submodule "posit"]
-	path = cppposit
-	url = https://github.com/eruffaldi/cppposit.git
+	path = cppPosit
+	url = https://github.com/eruffaldi/cppPosit.git
 	branch = master
