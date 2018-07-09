@@ -1,0 +1,40 @@
+FIND_PACKAGE(PythonInterp)
+
+if (PYTHONINTERP_FOUND)
+  if (UNIX AND NOT APPLE)
+    if (PYTHON_VERSION_MAJOR EQUAL 3)
+        FIND_PACKAGE(Boost COMPONENTS python${PYTHON_VERSION_SUFFIX} REQUIRED)
+        FIND_PACKAGE(PythonInterp 3)
+        FIND_PACKAGE(PythonLibs 3 REQUIRED)
+    else()
+        FIND_PACKAGE(Boost COMPONENTS python)
+        FIND_PACKAGE(PythonInterp)
+        FIND_PACKAGE(PythonLibs REQUIRED)
+    endif()
+  else()	
+    #{PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}
+    if (PYTHON_VERSION_MAJOR EQUAL 3)
+        FIND_PACKAGE(Boost COMPONENTS python REQUIRED)
+        FIND_PACKAGE(PythonInterp 3)
+        FIND_PACKAGE(PythonLibs 3 REQUIRED)
+    else()
+        FIND_PACKAGE(Boost COMPONENTS python REQUIRED)
+        FIND_PACKAGE(PythonInterp)
+        FIND_PACKAGE(PythonLibs REQUIRED)
+    endif()
+  endif()
+else()
+    message("Python not found")
+endif()
+
+message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
+message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
+
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES}) # Deprecated but so convenient!
+
+PYTHON_ADD_MODULE(extest extest.cpp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/extest.py ${CMAKE_CURRENT_BINARY_DIR}/extest.py COPYONLY)
+
