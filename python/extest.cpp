@@ -21,9 +21,12 @@ struct World
         }
         mMsg = ss.str();
     }
-    float passdata(int64_t px, int rows, int cols)
+    float passdataraw(int64_t px, int rows, int cols)
     {
-        float * p = (float*)px;
+        return passdata((float*)px,rows,cols);
+    }
+    float passdata(float * p, int rows, int cols)
+    {
         for(int i = 0; i < rows; i++)
             for(int j = 0; j < cols; j++)
             {
@@ -44,5 +47,6 @@ BOOST_PYTHON_MODULE(extest)
         .def("set", &World::set)
         .def("many", &World::many)
         .def("passdata", &World::passdata)
+        .def("passdataraw", &World::passdataraw)
     ;
 };

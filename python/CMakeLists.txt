@@ -38,3 +38,5 @@ LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES}) # Deprecated but so conve
 PYTHON_ADD_MODULE(extest extest.cpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/extest.py ${CMAKE_CURRENT_BINARY_DIR}/extest.py COPYONLY)
 
+PYTHON_ADD_MODULE(nanoflanns nanoflanns.cpp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanotest.py ${CMAKE_CURRENT_BINARY_DIR}/nanotest.py COPYONLY)

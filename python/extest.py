@@ -14,7 +14,9 @@ t = extest.World("ciao")
 p = q.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 print (p.__class__)
 # UGLY
-print (t.passdata(ctypes.cast(p, ctypes.c_void_p).value,int(q.shape[0]),int(q.shape[1])))
+print (t.passdataraw(ctypes.cast(p, ctypes.c_void_p).value,int(q.shape[0]),int(q.shape[1])))
+
+print (t.passdata(p,int(q.shape[0]),int(q.shape[1])))
 
 print (t.greet())
 t.set("bom dia!")
