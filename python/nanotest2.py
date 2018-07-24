@@ -21,11 +21,11 @@ def doknnsearch(index,qp,k):
 	n = index.knnSearchx(k,ndarray2ptr(qp),ndarray2ptr(rb))
 	return rb[0:n]
 
-def doradiussearch(r,qp,nres):
+def doradiussearch(index,r,qp,nres):
 	output = np.zeros(nres,dtype=np.int32)
 	qp = np.array(qp).astype(np.float32)
 	n = index.radiusSearchx(r,ndarray2ptr(qp),nres,ndarray2ptr(output))
-	return rb[0:n]
+	return output[0:n]
 
 def main():
 	print(dir(nanoflanns2))
@@ -40,10 +40,10 @@ def main():
 	print (dir(t),t.__class__)
 	print(t.name(),t.itemsize(),t.itemalign())
 	print("")
-	print ("build")
-	t.buildx(ndarray2ptr(data),data.size,3,10) # data,rows,dim,maxleaf
-	#print (doknnsearch(t,(3,2,7),10))
-	#print (doradiussearch(t,5,(3,2,7),10))
+	print ("build",data.shape[0])
+	print(t.buildx(ndarray2ptr(data),data.shape[0],data.shape[1],10)) # data,rows,dim,maxleaf
+	print (doknnsearch(t,(3,2,7),10))
+	print (doradiussearch(t,5,(3,2,7),10))
 
 
 if __name__ == '__main__':
