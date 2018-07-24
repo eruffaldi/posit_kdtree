@@ -12,6 +12,7 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <functional>
 
 template <typename T>
 struct NDDataHolder
@@ -56,7 +57,7 @@ Dst castcopy(It f, It e, Dst d)
 }
 
 template <class T>
-class kdtree_any_float_impl
+class kdtree_any_float_impl:  public kdtree_any_float
 {
 public:
 	using num_t = T;
@@ -72,7 +73,7 @@ public:
 
      }
 
-     virtual std::string name() { return typeid(T).name(); } 
+     virtual std::string name() const { return typeid(T).name(); } 
 
      virtual bool init(float * data, int rows, int dim, int maxleaf) 
      {
@@ -97,10 +98,11 @@ public:
      	}
      }
 
-     virtual int knnSearch(int K, float * query_point_f, int num_results, size_t * output)  const
+     virtual int knnSearch(int K, float * query_point_f,size_t * output)  const
      {
      	if(!index)
      		return 0;
+     	auto num_results = K;
 		std::vector<num_t> query_point(num_results);
 		castcopy(query_point_f,query_point_f+dim_,query_point.begin());
 
@@ -135,14 +137,14 @@ public:
      int dim_;
 };
 
-#define FACTORY(T) [] () { return (kdtree_any_float*)new kdtree_any_float_impl<T>(); } 
+#define FACTORY(T) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<T>(); }) 
 
 static kdd_factory_t factories[] = {
 	{"float", FACTORY(float) } ,
 	{"double", FACTORY(double) } ,
 	{"posit8", FACTORY(posit8) } ,
 	{"posit10", FACTORY(posit10) },
-	{"soft16", FACTORY(softfloat16) }
+	//{"soft16", FACTORY(softfloat16) }
 };
 
 kdtree_any_float * kdtree_any_float_create(const char * name)
@@ -152,10 +154,12 @@ kdtree_any_float * kdtree_any_float_create(const char * name)
 		if(f.name == name)
 		{
 			std::cerr << "found and ctor" << std::endl;
-			return f.fx();
+			auto *p= f.fx();
+			std::cerr << "found " << p->name()<<std::endl;
+			return p;
 		}
 	}
-	return nullptr;
+	return 0;
 }
 
 std::list<std::string> kdtree_any_float_list()

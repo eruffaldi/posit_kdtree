@@ -5,7 +5,7 @@
 class kdtree_any_float
 {
 public:
-     virtual ~kdtree_any_float() = 0;
+     virtual ~kdtree_any_float() {};
      virtual int itemsize() const = 0; // name of type
      virtual int itemalign() const = 0; // name of type
      virtual std::string name() const = 0; // name of type

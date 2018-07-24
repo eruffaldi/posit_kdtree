@@ -41,7 +41,7 @@ def main():
 	print(t.name(),t.itemsize(),t.itemalign())
 	print("")
 	print ("build")
-	#t.buildx(ndarray2ptr(data),data.size,3,10) # data,rows,dim,maxleaf
+	t.buildx(ndarray2ptr(data),data.size,3,10) # data,rows,dim,maxleaf
 	#print (doknnsearch(t,(3,2,7),10))
 	#print (doradiussearch(t,5,(3,2,7),10))
 
