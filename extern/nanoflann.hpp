@@ -74,7 +74,7 @@ T square(T a)
 template <class T>
 bool is_negative(T a)
 {
-	return a < 0;
+	return a < T(0);
 }
 
 template <class T>

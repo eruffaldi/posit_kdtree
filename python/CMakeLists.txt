@@ -40,3 +40,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/extest.py ${CMAKE_CURRENT_BINARY_DIR}
 
 PYTHON_ADD_MODULE(nanoflanns nanoflanns.cpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanotest.py ${CMAKE_CURRENT_BINARY_DIR}/nanotest.py COPYONLY)
+
+PYTHON_ADD_MODULE(nanoflanns2 nanoflanns2.cpp)
+target_link_libraries(nanoflanns2 nanotest_kdd)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanotest2.py ${CMAKE_CURRENT_BINARY_DIR}/nanotest2.py COPYONLY)
