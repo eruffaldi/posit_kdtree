@@ -7,7 +7,6 @@
 #include <vector>
 #include "nanoflann.hpp"
 #include "nanoflann_utils.hpp"
-#include "kdtree_interface.hpp"
 
 
 using namespace boost::python;

@@ -6,8 +6,10 @@ include_directories(extern)
 include_directories(cppPosit/extern)
 add_executable(nanoflann_kdd src/nanoflann_kdd.cpp)
 target_link_libraries(nanoflann_kdd posittab)
-add_library(nanotest_kdd SHARED src/kdtree_interface.cpp)
-target_link_libraries(nanotest_kdd posittab softfloat)
+
+add_library(nanotest_kdd STATIC src/kdtree_interface.cpp)
+target_link_libraries(nanotest_kdd posittab softfloat16)
+
 add_executable(nanotest_kdd_test src/kdtree_interface_test.cpp)
 target_link_libraries(nanotest_kdd_test nanotest_kdd)
 add_subdirectory(python)
