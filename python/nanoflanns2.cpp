@@ -1,7 +1,9 @@
 
+#include <cstdint>
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 #include <boost/python/extract.hpp>
+#include <boost/python/numpy.hpp>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -9,6 +11,7 @@
 #include "kdtree_interface.hpp"
 
 namespace py = boost::python;
+namespace np = boost::python::numpy;
 
 
 
@@ -27,44 +30,79 @@ public:
     {
         std::cerr << "kdtree_any_float_wrap: dtor" << std::endl;
         delete p_;
-    }
+    }   
 
-    bool buildx(int64_t pdata, int rows, int dim, int maxleaf)
+    #if 0
+    bool buildx(np::ndarray data, int maxleaf)
     {
-        return build((float*)pdata,rows,dim,maxleaf);
+        if(data.get_dtype() != np::dtype::get_builtin<float>())
+            return
+        return build((float*)data.get_data(),data.shape(0),data.shape(1),maxleaf);
+    }
+    #endif
+    bool buildx(std::intptr_t pdata, int rows, int dim, int maxleaf)
+    {
+        std::cout << "buildx " << pdata << std::endl;
+        return build(reinterpret_cast<const float*>(pdata),rows,dim,maxleaf);
     }
 
-    bool build(float* pdata, int rows, int dim, int maxleaf)
+    bool build(const float* pdata, int rows, int dim, int maxleaf)
     {
         if(!p_) 
             return false;
-        return p_->init(pdata,rows,dim,maxleaf) && p_->build();
+        else
+        {
+            /*
+            for(int i = 0; i < rows; i++)
+            {
+                for(int j = 0; j < dim; j++)
+                {
+                    std::cout  << " " << pdata[i*dim+j];
+                }
+                std::cout << std::endl;
+            }
+            */
+            return p_->init(pdata,rows,dim,maxleaf) && p_->build();
+        }
     }
 
-    int knnSearch(int K, float * point, size_t * output) const 
+    void printStats() const
+    {
+        if(!p_)
+            std::cout<<"not assigned\n";
+        else
+        {
+            p_->printStats();
+        }
+    }
+
+    int knnSearch(int K, const float* point, size_t * output) const 
     {
         if(!p_) 
             return 0;
-        return p_->knnSearch(K,point,output);
+        else
+            return p_->knnSearch(K,point,output);
     }
 
-    int knnSearchx(int K, int64_t  point, int64_t output) const 
+    int knnSearchx(int K, std::intptr_t  point, std::intptr_t output) const 
     {
-        return knnSearch(K,(float*)point,(size_t*)output);
+        return knnSearch(K,reinterpret_cast<const float*>(point),reinterpret_cast<size_t*>(output));
     }
 
-    int radiusSearch(float search_radius, float * point,  int num_results, int * output) const 
-    {
-        if(!p_) 
-            return 0;
-        return p_->radiusSearch(search_radius,point,num_results,output);
-    }
-
-    int radiusSearchx(float search_radius, int64_t point,  int num_results, int64_t output) const 
+    int radiusSearch(float search_radius, const float * point,  int num_results, int * output) const 
     {
         if(!p_) 
             return 0;
-        return radiusSearch(search_radius,(float*)point,num_results,(int*)output);
+        else
+            return p_->radiusSearch(search_radius,point,num_results,output);
+    }
+
+    int radiusSearchx(float search_radius, std::intptr_t point,  int num_results, std::intptr_t output) const 
+    {
+        if(!p_) 
+            return 0;
+        else
+            return radiusSearch(search_radius,reinterpret_cast<const float*>(point),num_results,reinterpret_cast<int*>(output));
     }
 
     int itemsize() const
@@ -75,6 +113,11 @@ public:
      int itemalign() const
      {
         return p_ ? p_->itemalign() : 0;        
+     }
+
+     int intsize() const
+     {
+        return sizeof(int);
      }
 
      std::string name() const 
@@ -107,7 +150,9 @@ BOOST_PYTHON_MODULE(nanoflanns2)
         .def("radiusSearchx",&kdtree_any_float_wrap::radiusSearchx)
         .def("itemsize",&kdtree_any_float_wrap::itemsize)
         .def("itemalign",&kdtree_any_float_wrap::itemalign)
+        .def("intsize",&kdtree_any_float_wrap::intsize)
         .def("name",&kdtree_any_float_wrap::name)
+        .def("printStats",&kdtree_any_float_wrap::printStats)
 
         .def("list", &kdtree_any_float_wrap::list)
         .staticmethod("list")

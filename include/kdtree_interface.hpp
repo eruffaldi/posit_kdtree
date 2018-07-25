@@ -9,10 +9,12 @@ public:
      virtual int itemsize() const = 0; // name of type
      virtual int itemalign() const = 0; // name of type
      virtual std::string name() const = 0; // name of type
-     virtual bool init(float * data, int rows, int dim, int maxleaf) = 0;
+     virtual bool init(const float * data, int rows, int dim, int maxleaf) = 0;
      virtual bool build() = 0;
-     virtual int knnSearch(int K, float * point, size_t * output) const = 0;
-     virtual int radiusSearch(float search_radius, float * point,  int num_results, int * output) const = 0;
+     virtual int knnSearch(int K, const float * point, size_t * output) const = 0;
+     virtual int radiusSearch(float search_radius, const float * point,  int num_results, int * output) const = 0;
+     virtual void printStats() const = 0;
+
 };
 
 
