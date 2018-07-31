@@ -22,13 +22,13 @@ public:
     {
         if(!p_)
             std::cerr << "kdtree_any_float_wrap: not found " << name << std::endl;
-        else
-            std::cerr << "kdtree_any_float_wrap: init " << name << " " << p_->name()<< std::endl;
+        //else
+        //  std::cerr << "kdtree_any_float_wrap: init " << name << " " << p_->name()<< std::endl;
     }
 
     ~kdtree_any_float_wrap()
     {
-        std::cerr << "kdtree_any_float_wrap: dtor" << std::endl;
+        //std::cerr << "kdtree_any_float_wrap: dtor" << std::endl;
         delete p_;
     }   
 
@@ -42,7 +42,6 @@ public:
     #endif
     bool buildx(std::intptr_t pdata, int rows, int dim, int maxleaf)
     {
-        std::cout << "buildx " << pdata << std::endl;
         return build(reinterpret_cast<const float*>(pdata),rows,dim,maxleaf);
     }
 
@@ -89,7 +88,7 @@ public:
         return knnSearch(K,reinterpret_cast<const float*>(point),reinterpret_cast<size_t*>(output));
     }
 
-    int radiusSearch(float search_radius, const float * point,  int num_results, int * output) const 
+    int radiusSearch(float search_radius, const float * point,  int num_results, size_t * output) const 
     {
         if(!p_) 
             return 0;
@@ -102,7 +101,7 @@ public:
         if(!p_) 
             return 0;
         else
-            return radiusSearch(search_radius,reinterpret_cast<const float*>(point),num_results,reinterpret_cast<int*>(output));
+            return radiusSearch(search_radius,reinterpret_cast<const float*>(point),num_results,reinterpret_cast<size_t*>(output));
     }
 
     int itemsize() const
@@ -115,9 +114,9 @@ public:
         return p_ ? p_->itemalign() : 0;        
      }
 
-     int intsize() const
+     int indexsize() const
      {
-        return sizeof(int);
+        return sizeof(kdtree_any_float::IndexType);
      }
 
      std::string name() const 
@@ -150,7 +149,7 @@ BOOST_PYTHON_MODULE(nanoflanns2)
         .def("radiusSearchx",&kdtree_any_float_wrap::radiusSearchx)
         .def("itemsize",&kdtree_any_float_wrap::itemsize)
         .def("itemalign",&kdtree_any_float_wrap::itemalign)
-        .def("intsize",&kdtree_any_float_wrap::intsize)
+        .def("indexsize",&kdtree_any_float_wrap::indexsize)
         .def("name",&kdtree_any_float_wrap::name)
         .def("printStats",&kdtree_any_float_wrap::printStats)
 

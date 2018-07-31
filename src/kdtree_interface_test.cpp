@@ -118,7 +118,7 @@ int main(int argc, char const *argv[])
             }
             else if(args::get(aS) > 0) // r search
             {
-                std::vector<int> output(args::get(aS));
+                std::vector<size_t> output(args::get(aS));
                 for(int i = 0; i < st.size()/dim; i++)
                 {
                     int n = p->radiusSearch(args::get(aR),&st[i*dim],output.size(),&output[0]);
