@@ -20,3 +20,6 @@ RUN pip3 install -U lxml
 
 COPY deploy_softfloat.h . 
 RUN ./deploy_softfloat.h
+
+COPY deploy_cppposit.h . 
+RUN ./deploy_cppposit.h
