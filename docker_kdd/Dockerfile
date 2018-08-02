@@ -29,8 +29,8 @@ RUN ./deploy_cppposit.sh
 # --recurse-submodules
 ARG gituser
 ARG gitpass
-COPY deploy_cppposit.sh . 
-RUN ./deploy_cppposit.sh ${gituser} ${gitpass}
+COPY deploy_kdtree.sh . 
+RUN ./deploy_kdtree.sh ${gituser} ${gitpass}
 
 #test
 RUN cd posit_kdtree/build/python && python3 nanotest.py

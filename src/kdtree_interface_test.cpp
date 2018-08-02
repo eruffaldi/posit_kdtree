@@ -2,6 +2,7 @@
 #include "args.hxx"
 #include "picojson.h"
 #include <fstream>
+#include <chrono>
 
 template <class T>
 std::vector<float> loadbinary(std::string f)
