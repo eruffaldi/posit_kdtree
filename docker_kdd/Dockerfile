@@ -18,18 +18,18 @@ RUN apt-get -y install python3-pip
 RUN apt install libeigen3-dev
 RUN pip3 install -U lxml
 
-COPY deploy_softfloat.h . 
-RUN ./deploy_softfloat.h
+COPY deploy_softfloat.sh . 
+RUN ./deploy_softfloat.sh
 
-#provided with posit_kdtree
-#COPY deploy_cppposit.h . 
-#RUN ./deploy_cppposit.h
+#note that we ignore submodule in posit_kdtree
+COPY deploy_cppposit.sh . 
+RUN ./deploy_cppposit.sh
 
 #assume having posit_kdtree here
+# --recurse-submodules
 ARG gituser
 ARG gitpass
 RUN git clone https://${gituser}:${gitpass}@bitbucket.org/eruffaldi/posit_kdtree.git 
-RUN cd posit_kdtree && git clone --depth 1 --recurse-submodules https://github.com/eruffaldi/cppPosit.git
 RUN cd posit_kdtree && cmake -DPython_ADDITIONAL_VERSIONS=3.7 -DPYTHON_LIBRARIES="/usr/lib/libpython37.dylib" -DPYTHON_INCLUDE_DIRS="/usr/include/python/3.7" -DPYTHON_EXECUTABLE="/usr/bin/python3" -DPYTHON_VERSION_SUFFIX=3 -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
 RUN cd posit_kdtree && make
 RUN cd posit_kdtree/python && python3 -c 'import nanoflanns'
