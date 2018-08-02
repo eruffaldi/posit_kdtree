@@ -29,8 +29,9 @@ RUN ./deploy_cppposit.sh
 # --recurse-submodules
 ARG gituser
 ARG gitpass
-RUN git clone https://${gituser}:${gitpass}@bitbucket.org/eruffaldi/posit_kdtree.git 
-RUN cd posit_kdtree && cmake -DPython_ADDITIONAL_VERSIONS=3.7 -DPYTHON_LIBRARIES="/usr/lib/libpython37.dylib" -DPYTHON_INCLUDE_DIRS="/usr/include/python/3.7" -DPYTHON_EXECUTABLE="/usr/bin/python3" -DPYTHON_VERSION_SUFFIX=3 -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
-RUN cd posit_kdtree && make
-RUN cd posit_kdtree/python && python3 -c 'import nanoflanns'
-RUN cd posit_kdtree/python && python3 -c 'import nanoflanns2'
+COPY deploy_cppposit.sh . 
+RUN ./deploy_cppposit.sh ${gituser} ${gitpass}
+
+#test
+RUN cd posit_kdtree/build/python && python3 nanotest.py
+RUN cd posit_kdtree/build/python && python3 nanotest2.py
