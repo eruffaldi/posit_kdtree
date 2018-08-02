@@ -1,6 +1,6 @@
 
 Prepare Image:
-	docker build -t posit_kdd . --build-arg gituser=eruffaldi gitpass=...
+	docker build --build-arg gituser=eruffaldi --build-arg gitpass=... -t posit_kdd . 
 
 Fill it in with sources
 	docker 
