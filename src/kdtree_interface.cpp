@@ -15,6 +15,105 @@
 #include <iostream>
 #include <functional>
 
+
+// TODO: Jaccard as in ann-benchmarks
+//	 Jaccard = 0 if any length is 0
+//
+//   intersect = len(a & b)
+//	 Jaccard = intersect / (float)(len(a) + len(b) - intersect)
+
+/** Not Normalized Hamming distance functor (generic version, optimized for high-dimensionality data sets).
+  * \tparam T Type of the elements (e.g. double, float, uint8_t)
+  * \tparam _DistanceType Type of distance variables (can be unsigned) (e.g. float, double, int64_t)
+  *
+  * as in scipy pdist https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html
+  * Computes the normalized Hamming distance, or the proportion of those vector elements between two n-vectors u and v which disagree. To save memory, the matrix X can be of type boolean.
+  */
+template<class T, class DataSource, typename _DistanceType = T>
+struct Hamming_Adaptor
+{
+	typedef T ElementType;
+	typedef _DistanceType DistanceType;
+
+	const DataSource &data_source;
+
+	Hamming_Adaptor(const DataSource &_data_source) : data_source(_data_source) { }
+
+	inline DistanceType evalMetric(const T* a, const size_t b_idx, size_t size, DistanceType worst_dist = 1) const
+	{
+		const T* last = a + size;
+		const T* lastgroup = last - 3;
+		size_t d = 0;
+		int result = 0;
+
+		/* Process 4 items with each loop for efficiency. */
+		while (a < lastgroup) {
+			const bool diff0 = a[0] != data_source.kdtree_get_pt(b_idx,d++);
+			const bool diff1 = a[1] != data_source.kdtree_get_pt(b_idx,d++);
+			const bool diff2 = a[2] != data_source.kdtree_get_pt(b_idx,d++);
+			const bool diff3 = a[3] != data_source.kdtree_get_pt(b_idx,d++);
+			result += diff0 + diff1 + diff2 + diff3;
+			a += 4;
+		}
+		/* Process last 0-3 components.  Not needed for standard vector lengths. */
+		while (a < last) {
+			result += *a++ != data_source.kdtree_get_pt(b_idx,d++);
+		}
+		return DistanceType(result);
+	}
+
+	template <typename U, typename V>
+	inline DistanceType accum_dist(const U a, const V b, int ) const
+	{
+		return a == b ? DistanceType(0) : DistanceType(1);
+	}
+};
+
+#if 0
+
+/** Squared Euclidean distance functor (generic version, optimized for high-dimensionality data sets).
+  *  Corresponding distance traits: nanoflann::metric_L2
+  * \tparam T Type of the elements (e.g. double, float, uint8_t)
+  * \tparam _DistanceType Type of distance variables (must be signed) (e.g. float, double, int64_t)
+  *
+  * 1 - (u dot v) / ||u|| ||v||
+  */
+template<class T, class DataSource, typename _DistanceType = T>
+struct Angular_Adaptor
+{
+	typedef T ElementType;
+	typedef _DistanceType DistanceType;
+
+	const DataSource &data_source;
+
+	Angular_Adaptor(const DataSource &_data_source) : data_source(_data_source) { }
+
+
+	inline DistanceType evalMetric(const T* a, const size_t b_idx, size_t size) const
+	{
+		DistanceType dotaccum(0);
+		DistanceType vaccum(0);
+		DistanceType uaccum(0);
+
+		for (size_t i = 0; i < size; ++i) {
+			auto x = data_source.kdtree_get_pt(b_idx, i);
+			uaccum += square(a[i]);
+			vaccum += square(x);
+			dotaccum += a[i]*x;
+		}
+		return DistanceType(1)-(dotaccum/(std::sqrt(uaccum)*std::sqrt(vaccum)));
+	}
+
+	template <typename U, typename V>
+	inline DistanceType accum_dist(const U a, const V b, int ) const
+	{
+		// TODO CLARIFY
+		return square(a - b);
+	}
+};
+#endif
+
+
 template <typename T, typename IndexType>
 struct NDDataHolder
 {
@@ -57,7 +156,7 @@ Dst castcopy(It f, It e, Dst d)
 	return d;
 }
 
-template <class T>
+template <class T, template<class XT, class DataSource, typename _DistanceType = XT> class Adaptor>
 class kdtree_any_float_impl:  public kdtree_any_float
 {
 public:
@@ -65,7 +164,7 @@ public:
 
 	// construct a kd-tree index:
 	typedef nanoflann::KDTreeSingleIndexAdaptor<
-		nanoflann::L2_Simple_Adaptor<num_t, NDDataHolder<num_t,IndexType> > ,
+		Adaptor<num_t, NDDataHolder<num_t,IndexType> > ,
 		NDDataHolder<num_t,IndexType>, -1, IndexType
 		> my_kd_tree_t;
 
@@ -156,9 +255,14 @@ public:
      int dim_;
 };
 
-#define FACTORY(T) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<T>(); }) 
+// primary type is the data type
+// secondary type is the adaptor: nanoflann::L1_Adaptor nanoflann::L2_Adaptor
 
-#define FACTORYPOSIT(stype,bits,esbits,ftype,withnan) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<Posit<stype,bits,esbits,ftype,withnan> >(); }) 
+#define FACTORY(T) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<T,nanoflann::L2_Adaptor>(); }) 
+#define FACTORYPOSIT(stype,bits,esbits,ftype,withnan) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<Posit<stype,bits,esbits,ftype,withnan>,nanoflann::L2_Adaptor >(); }) 
+
+#define FACTORYH(T) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<T,Hamming_Adaptor>(); }) 
+#define FACTORYPOSITH(stype,bits,esbits,ftype,withnan) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<Posit<stype,bits,esbits,ftype,withnan>,Hamming_Adaptor >(); }) 
 
 static kdd_factory_t factories[] = {
 	// native
@@ -173,7 +277,11 @@ static kdd_factory_t factories[] = {
 	{"posit12tab", FACTORY(posit12) } ,
 	/*{"posit10", FACTORY(posit10) },*/
 	// softfloat 16bit ... TODO make it tabulated
-	{"soft16", FACTORY(softfloat16) }
+	{"soft16", FACTORY(softfloat16) },
+	{"float_hamming", FACTORYH(float) } ,
+
+
+
 };
 
 kdtree_any_float * kdtree_any_float_create(const char * name)

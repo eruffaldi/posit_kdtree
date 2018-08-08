@@ -338,7 +338,7 @@ namespace nanoflann
 
 		L2_Adaptor(const DataSource &_data_source) : data_source(_data_source) { }
 
-		inline DistanceType evalMetric(const T* a, const size_t b_idx, size_t size, DistanceType worst_dist = -1) const
+		inline DistanceType evalMetric(const T* a, const size_t b_idx, size_t size, DistanceType worst_dist = DistanceType(-1)) const
 		{
 			DistanceType result(0);
 			const T* last = a + size;
@@ -353,7 +353,7 @@ namespace nanoflann
 				const DistanceType diff3 = a[3] - data_source.kdtree_get_pt(b_idx,d++);
 				result += square(diff0) + square(diff1) + square(diff2) + square(diff3);
 				a += 4;
-				if ((worst_dist > 0) && (result > worst_dist)) {
+				if ((worst_dist > DistanceType(0)) && (result > worst_dist)) {
 					return result;
 				}
 			}
