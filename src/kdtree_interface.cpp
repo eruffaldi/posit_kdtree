@@ -220,7 +220,7 @@ public:
      	if(!index)
      		return 0;
      	auto num_results = K;
-		std::vector<num_t> query_point(num_results);
+		std::vector<num_t> query_point(dim_);
 		castcopy(query_point_f,query_point_f+dim_,query_point.begin());
 
 		// is necessary out_dist_sqr ?
