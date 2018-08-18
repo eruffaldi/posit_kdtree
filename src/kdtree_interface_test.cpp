@@ -55,6 +55,7 @@ int main(int argc, char const *argv[])
     }
     if(args::get(aList))
     {
+        std::cout << "listing types" << std::endl;
     	for(auto & a: kdtree_any_float_list())
     	{
     		std::cout << " " << a << std::endl;	

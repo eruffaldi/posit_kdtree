@@ -9,7 +9,7 @@ Requires
 	explicit operator float() const { return toDouble(); }
 */
 
-kdd_factory_t cppPosit_factories[] = {
+kdd_factory_t softposit_factories[] = {
 	// tabulated
 	{"softposit8", FACTORY(posit8) } ,
 	{"softposit16", FACTORY(posit16) } ,

@@ -5,7 +5,7 @@
 	{"float", FACTORY(float) } ,
 	{"double", FACTORY(double) } ,
 	{"float_hamming", FACTORYH(float) } ,
-	{0}
+	{""}
 
 };
 
