@@ -10,6 +10,12 @@ kdd_factory_t cppPosit_factories[] = {
 	//{"posit16_2", FACTORYPOSIT(int16_t, 16, POSIT16_ES, uint32_t, false) },
 	{"posit12_2", FACTORYPOSIT(int16_t, 12, POSIT12_ES, uint32_t, false) },
 	{"posit8_2", FACTORYPOSIT(int8_t, 8, POSIT8_ES, uint32_t, false) },
+
+	// like the soft posit
+	{"posit8_0", FACTORYPOSIT(int8_t, 8, 1, uint32_t, false) },
+	{"posit16_1", FACTORYPOSIT(int16_t, 16, 1, uint32_t, false) },
+	{"posit32_2", FACTORYPOSIT(int32_t, 32, 2, uint64_t, false) },
+	
 	// tabulated
 	{"posit8tab", FACTORY(posit8) } ,
 	{"posit12tab", FACTORY(posit12) } ,
