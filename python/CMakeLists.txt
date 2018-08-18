@@ -43,9 +43,9 @@ LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES}) # Deprecated but so conve
 PYTHON_ADD_MODULE(extest extest.cpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/extest.py ${CMAKE_CURRENT_BINARY_DIR}/extest.py COPYONLY)
 
-PYTHON_ADD_MODULE(nanoflanns nanoflanns.cpp)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanotest.py ${CMAKE_CURRENT_BINARY_DIR}/nanotest.py COPYONLY)
+#PYTHON_ADD_MODULE(nanoflanns nanoflanns.cpp)
+#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanotest.py ${CMAKE_CURRENT_BINARY_DIR}/nanotest.py COPYONLY)
 
-PYTHON_ADD_MODULE(nanoflanns2 nanoflanns2.cpp)
-target_link_libraries(nanoflanns2 nanotest_kdd)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanotest2.py ${CMAKE_CURRENT_BINARY_DIR}/nanotest2.py COPYONLY)
+PYTHON_ADD_MODULE(pynanoflann_any pynanoflann_any.cpp)
+target_link_libraries(pynanoflann_any nanoflann_any)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanoflann_any.py ${CMAKE_CURRENT_BINARY_DIR}/nanoflann_any.py COPYONLY)

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function 
-import nanoflanns2
+print("pre")
+import pynanoflann_any
+print("post")
 import numpy as np
 import ctypes
 
@@ -49,10 +51,11 @@ def doradiussearch(index,r,qp,nres):
 
 
 def main():
-	print(dir(nanoflanns2))
-	xclass = nanoflanns2.kdtree_any_float
+	print("main")	
+	print(dir(pynanoflann_any))
+	xclass = pynanoflann_any.kdtree_any_float
 	allt = xclass.list()
-	print ("options",allt)
+	print ("variants:",allt)
 
 	data = np.zeros((10,4),dtype=np.float32)
 	print(data.flags['C_CONTIGUOUS'],data.dtype)

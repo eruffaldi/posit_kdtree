@@ -13,8 +13,6 @@
 namespace py = boost::python;
 namespace np = boost::python::numpy;
 
-
-
 class kdtree_any_float_wrap
 {
 public:
@@ -137,7 +135,7 @@ public:
     kdtree_any_float * p_;
 };
 
-BOOST_PYTHON_MODULE(nanoflanns2)
+BOOST_PYTHON_MODULE(pynanoflann_any)
 {
 
     py::class_<kdtree_any_float_wrap>("kdtree_any_float",py::init<std::string>())

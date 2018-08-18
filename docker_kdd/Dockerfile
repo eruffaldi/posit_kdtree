@@ -21,6 +21,13 @@ RUN pip3 install -U lxml
 COPY deploy_softfloat.sh . 
 RUN ./deploy_softfloat.sh
 
+COPY deploy_softposit.sh . 
+RUN ./deploy_softposit.sh
+
+#note that we ignore submodule in posit_kdtree
+COPY deploy_bfp.sh . 
+RUN ./deploy_bfp.sh
+
 #note that we ignore submodule in posit_kdtree
 COPY deploy_cppposit.sh . 
 RUN ./deploy_cppposit.sh

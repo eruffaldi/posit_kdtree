@@ -18,9 +18,17 @@ include_directories(extern)
 add_executable(nanoflann_kdd src/nanoflann_kdd.cpp)
 target_link_libraries(nanoflann_kdd posittab)
 
-add_library(nanotest_kdd STATIC src/kdtree_interface.cpp)
-target_link_libraries(nanotest_kdd posittab softfloat16 softfloat)
+find_library(SOFTPOSIT_LIBRARY softposit)
+find_library(SOFTPOSIT_INCLUDE softposit_cpp.h)
 
-add_executable(nanotest_kdd_test src/kdtree_interface_test.cpp)
-target_link_libraries(nanotest_kdd_test nanotest_kdd)
+if(SOFTPOSIT_INCLUDE AND SOFTPOSIT_LIBRARY)
+message("WITH softposit")
+include_directories(${SOFTPOSIT_INCLUDE})
+endif()
+
+add_library(nanoflann_any STATIC src/kdtree_interface.cpp src/kdtree_interface_cppPosit.cpp src/kdtree_interface_native.cpp src/kdtree_interface_softfloat.cpp src/kdtree_interface_softPosit.cpp)
+target_link_libraries(nanoflann_any posittab softfloat16 softfloat ${SOFTPOSIT_LIBRARY})
+
+add_executable(nanoflann_any_test src/kdtree_interface_test.cpp)
+target_link_libraries(nanoflann_any_test nanoflann_any)
 add_subdirectory(python)
