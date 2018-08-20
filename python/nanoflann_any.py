@@ -71,11 +71,16 @@ def main():
 		#print ("build",data.shape[0])
 		#print(t.buildnp(data,10)) # data,rows,dim,maxleaf
 		print ("\n\nbt ------ " ,bt)
-		print (" ",t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],10)) # data,rows,dim,maxleaf
+		print (" building ",t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],10,False)) # data,rows,dim,maxleaf
 		print(" ",t.printStats())
 		print (" ",doknnsearch(t,(3,2,7,8),10))
 		print (" ",doradiussearch(t,5,(3,2,7,8),10))
 
+		print ("\n\nbt ------ float -> " ,bt)
+		print (" building ",t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],10,True)) # data,rows,dim,maxleaf
+		print(" ",t.printStats())
+		print (" ",doknnsearch(t,(3,2,7,8),10))
+		print (" ",doradiussearch(t,5,(3,2,7,8),10))
 
 if __name__ == '__main__':
 	main()

@@ -5,6 +5,7 @@
 	/*{"posit10", FACTORY(posit10) },*/
 	// softfloat 16bit ... TODO make it tabulated
 	{"soft16", FACTORY(softfloat16) },
+	{"soft32", FACTORY(softfloat32) },
 	{""}
 };
 

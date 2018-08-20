@@ -9,6 +9,7 @@
 #include <vector>
 #include <iostream>
 #include <functional>
+#include <type_traits>
 
 
 // TODO: Jaccard as in ann-benchmarks
@@ -163,6 +164,12 @@ public:
 		NDDataHolder<num_t,IndexType>, -1, IndexType
 		> my_kd_tree_t;
 
+	// construct a kd-tree index:
+	typedef nanoflann::KDTreeSingleIndexAdaptor<
+		Adaptor<float, NDDataHolder<float,IndexType> > ,
+		NDDataHolder<float,IndexType>, -1, IndexType
+		> my_kd_tree_float_t;
+
      virtual ~kdtree_any_float_impl() 
      {
 
@@ -182,12 +189,31 @@ public:
 
      virtual std::string name() const { return typeid(T).name(); } 
 
+     virtual bool initFromFloatTree(const float * data, int rows, int dim, int maxleaf) 
+     {
+     	dim_ = dim;
+     	cloud_f = std::make_shared<NDDataHolder<float,IndexType>> (rows,dim,dim);
+     	cloud = std::make_shared<NDDataHolder<num_t,IndexType> > (rows,dim,dim);
+     	if(!cloud_f)
+     		return false;
+     	else
+     	{
+	     	castcopy(data,data+rows*dim,cloud->pts.begin());
+	     	castcopy(data,data+rows*dim,cloud_f->pts.begin());
+	     	index_f = std::make_shared<my_kd_tree_float_t>(dim_, *cloud_f, nanoflann::KDTreeSingleIndexAdaptorParams(maxleaf /* max leaf */) );
+	     	index = std::make_shared<my_kd_tree_t>(dim_, *cloud, nanoflann::KDTreeSingleIndexAdaptorParams(maxleaf /* max leaf */) );
+	     	return (bool)(index_f) && (bool)index;
+	     }
+     }
+
      virtual bool init(const float * data, int rows, int dim, int maxleaf) 
      {
      	dim_ = dim;
      	cloud = std::make_shared<NDDataHolder<num_t,IndexType>> (rows,dim,dim);
      	if(!cloud)
+     	{
      		return false;
+     	}
      	else
      	{
 	     	castcopy(data,data+rows*dim,cloud->pts.begin());
@@ -195,20 +221,73 @@ public:
 	     	return (bool)index;
 	     }
      }
+
+     template <class D, class DN, class SN>
+     void castcopytree(D*d, DN&dn, const SN&sn)
+     {
+ 		using DT = typename my_kd_tree_t::DistanceType;
+		int div = sn->divfeat;
+		if(!sn->is_leaf())
+		{
+			const auto & smn = sn->as_mid();
+			auto *mn = d->pool.template allocate<typename D::MidNode>();
+			mn->divfeat = smn.divfeat;
+			mn->divlow = DT(smn.divlow); // casting
+			mn->divhigh = DT(smn.divhigh); // casting
+			dn=mn;
+			castcopytree(d, mn->child1, smn.child1);
+			castcopytree(d, mn->child2, smn.child2);
+		}
+		else
+		{
+			const auto & sln = sn->as_leaf();
+			auto *ln = d->pool.template allocate<typename D::LeafNode >();
+			dn=ln;
+			ln->divfeat = sln.divfeat;
+			ln->left = sln.left;
+			ln->right = sln.right;
+		}     	
+     }
+
      virtual bool build()
      {
-     	if(!index)
+     	if(index_f)
      	{
-     		return false;
+		    typename my_kd_tree_float_t::BoundingBox bb;
+		    index_f->computeBoundingBox(bb);
+     		index_f->buildIndex();
+     		
+     		std::cout << "cloning tree" << std::endl;
+     		//cast clone
+     		index->m_size = index_f->m_size;
+     		index->dim = index_f->dim;
+     		index->root_bbox.resize(index_f->dim);
+     		const auto & sb = index_f->root_bbox ;
+     		auto & db = index->root_bbox ;
+     		using DT = typename my_kd_tree_t::DistanceType;
+     		for(int i = 0; i < index->dim; i++)
+     		{
+     			db[i].low = DT(sb[i].low); // cast
+     			db[i].high = DT(sb[i].high); // cast
+     		}
+     		index->m_leaf_max_size = index_f->m_leaf_max_size;
+     		index->vind = index_f->vind;
+     		castcopytree(index.get(),index->root_node,index_f->root_node);
+     		return true;     		
      	}
-     	else
+     	else if(index)
      	{
 		    typename my_kd_tree_t::BoundingBox bb;
 		    index->computeBoundingBox(bb);
      		index->buildIndex();
      		return true;
      	}
+     	else
+     	{
+     		return false;
+     	}
      }
+
 
      virtual int knnSearch(int K, const float * query_point_f,IndexType * output)  const
      {
@@ -247,10 +326,13 @@ public:
 
 	 std::shared_ptr<NDDataHolder<T,IndexType> > cloud;
      std::shared_ptr<my_kd_tree_t> index;
+     std::shared_ptr<my_kd_tree_float_t> index_f;
+	 std::shared_ptr<NDDataHolder<float,IndexType> > cloud_f;
      int dim_;
 };
 
 #if 0
+// previous version based on registrar
 struct kdtree_any_list
 {
 public:
@@ -270,7 +352,6 @@ public:
 };
 #endif
 
-#define DUMMYFACTORY()  std::function<kdtree_any_float*()>([] () { return nullptr; })
 #define FACTORY(T) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<T,nanoflann::L2_Adaptor>(); }) 
 #define FACTORYPOSIT(stype,bits,esbits,ftype,withnan) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<Posit<stype,bits,esbits,ftype,withnan>,nanoflann::L2_Adaptor >(); }) 
 

@@ -1,6 +1,8 @@
 #include "kdtree_interface_impl.hpp"
 
 /*
+Alternatively we could use weak
+
 kdd_factory_t __attribute__((weak)) cppPosit_factories[] = { {""} };
 kdd_factory_t __attribute__((weak)) softfloat_factories[] = { {""} };
 kdd_factory_t __attribute__((weak)) native_factories[] = { {""} };
@@ -10,6 +12,7 @@ extern kdd_factory_t cppPosit_factories[] ;
 extern kdd_factory_t softfloat_factories[] ;
 extern kdd_factory_t native_factories[] ;
 extern kdd_factory_t  softposit_factories[];
+extern kdd_factory_t fixedpoint_factories[];
 
 static kdd_factory_t * factories[]
 {
@@ -17,6 +20,7 @@ static kdd_factory_t * factories[]
 	softfloat_factories,
 	native_factories,
 	softposit_factories,
+	fixedpoint_factories
 };
 
 kdtree_any_float * kdtree_any_float_create(const char * name)

@@ -38,12 +38,12 @@ public:
         return build((float*)data.get_data(),data.shape(0),data.shape(1),maxleaf);
     }
     #endif
-    bool buildx(std::intptr_t pdata, int rows, int dim, int maxleaf)
+    bool buildx(std::intptr_t pdata, int rows, int dim, int maxleaf, bool fromfloatree)
     {
-        return build(reinterpret_cast<const float*>(pdata),rows,dim,maxleaf);
+        return build(reinterpret_cast<const float*>(pdata),rows,dim,maxleaf,fromfloatree);
     }
 
-    bool build(const float* pdata, int rows, int dim, int maxleaf)
+    bool build(const float* pdata, int rows, int dim, int maxleaf, bool fromfloatree)
     {
         if(!p_) 
             return false;
@@ -59,7 +59,11 @@ public:
                 std::cout << std::endl;
             }
             */
-            return p_->init(pdata,rows,dim,maxleaf) && p_->build();
+            if(!fromfloatree)
+                return p_->init(pdata,rows,dim,maxleaf) && p_->build();
+            else
+                return p_->initFromFloatTree(pdata,rows,dim,maxleaf) && p_->build();
+
         }
     }
 
