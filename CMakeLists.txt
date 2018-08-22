@@ -1,4 +1,4 @@
-add_definitions(--std=c++11)
+add_definitions(--std=c++14)
 
 file(GLOB RESULT ${CMAKE_CURRENT_LIST_DIR}/cppPosit)
 list(LENGTH RESULT RES_LEN)
