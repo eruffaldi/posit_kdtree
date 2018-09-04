@@ -13,6 +13,7 @@ extern kdd_factory_t softfloat_factories[] ;
 extern kdd_factory_t native_factories[] ;
 extern kdd_factory_t  softposit_factories[];
 extern kdd_factory_t fixedpoint_factories[];
+extern kdd_factory_t stillwater_factories[];
 
 static kdd_factory_t * factories[]
 {
@@ -20,7 +21,8 @@ static kdd_factory_t * factories[]
 	softfloat_factories,
 	native_factories,
 	softposit_factories,
-	fixedpoint_factories
+	fixedpoint_factories,
+	stillwater_factories
 };
 
 kdtree_any_float * kdtree_any_float_create(const char * name)
