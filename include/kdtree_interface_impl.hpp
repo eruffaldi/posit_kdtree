@@ -144,6 +144,9 @@ struct kdd_factory_t {
 	std::function<kdtree_any_float*()> fx;
 };
 
+/**
+ * std::copy but forcing a cast to decltype of *d
+ */
 template <class It, class Dst>
 Dst castcopy(It f, It e, Dst d)
 {

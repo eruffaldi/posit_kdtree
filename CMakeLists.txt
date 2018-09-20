@@ -34,7 +34,14 @@ message("WITH stillwater")
 include_directories(${STILLWATER_INCLUDE})
 endif()
 
-add_library(nanoflann_any STATIC src/kdtree_interface.cpp src/kdtree_interface_fixedpoint.cpp src/kdtree_interface_cppPosit.cpp src/kdtree_interface_native.cpp src/kdtree_interface_softfloat.cpp src/kdtree_interface_softPosit.cpp src/kdtree_interface_stillwater.cpp)
+find_library(HALF_INCLUDE half.h)
+
+if(HALF_INCLUDE)
+message("WITH half")
+include_directories(${HALF_INCLUDE})
+endif()
+
+add_library(nanoflann_any STATIC src/kdtree_interface.cpp src/kdtree_interface_fixedpoint.cpp src/kdtree_interface_cppPosit.cpp src/kdtree_interface_native.cpp src/kdtree_interface_softfloat.cpp src/kdtree_interface_softPosit.cpp src/kdtree_interface_stillwater.cpp src/kdtree_interface_half.cpp)
 target_link_libraries(nanoflann_any posittab softfloat16 softfloat ${SOFTPOSIT_LIBRARY})
 
 add_executable(nanoflann_any_test src/kdtree_interface_test.cpp)

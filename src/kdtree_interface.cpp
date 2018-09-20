@@ -14,6 +14,7 @@ extern kdd_factory_t native_factories[] ;
 extern kdd_factory_t  softposit_factories[];
 extern kdd_factory_t fixedpoint_factories[];
 extern kdd_factory_t stillwater_factories[];
+extern kdd_factory_t half_factories[];
 
 static kdd_factory_t * factories[]
 {
@@ -22,7 +23,8 @@ static kdd_factory_t * factories[]
 	native_factories,
 	softposit_factories,
 	fixedpoint_factories,
-	stillwater_factories
+	stillwater_factories,
+	half_factories
 };
 
 kdtree_any_float * kdtree_any_float_create(const char * name)
@@ -50,9 +52,12 @@ std::list<std::string> kdtree_any_float_list()
 	{
 		if(!p)
 			break;
-		for(kdd_factory_t * f = p; !f->name.empty(); f++)
+		else
 		{
-			r.push_back(f->name);
+			for(kdd_factory_t * f = p; !f->name.empty(); f++)
+			{
+				r.push_back(f->name);
+			}
 		}
 	}
 	return r;
