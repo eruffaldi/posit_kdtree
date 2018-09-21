@@ -381,7 +381,7 @@ struct L2_Adaptor {
   L2_Adaptor(const DataSource &_data_source) : data_source(_data_source) {}
 
   inline DistanceType evalMetric(const T *a, const size_t b_idx, size_t size,
-                                 DistanceType worst_dist = DistanceType(-1)) const {
+                                 DistanceType worst_dist = -1) const {
     DistanceType result = DistanceType();
     const T *last = a + size;
     const T *lastgroup = last - 3;
@@ -395,7 +395,7 @@ struct L2_Adaptor {
       const DistanceType diff3 = a[3] - data_source.kdtree_get_pt(b_idx, d++);
       result += diff0 * diff0 + diff1 * diff1 + diff2 * diff2 + diff3 * diff3;
       a += 4;
-      if ((worst_dist > DistanceType(0)) && (result > worst_dist)) {
+      if ((worst_dist > 0) && (result > worst_dist)) {
         return result;
       }
     }
@@ -602,7 +602,7 @@ class PooledAllocator {
   /* We maintain memory alignment to word boundaries by requiring that all
       allocations be in multiples of the machine wordsize.  */
   /* Size of machine word in bytes.  Must be power of 2. */
-  /* Minimum number of bytes requested at a time from	the system.  Must be
+  /* Minimum number of bytes requested at a time from the system.  Must be
    * multiple of WORDSIZE. */
 
   size_t remaining; /* Number of bytes left in current block of storage. */
@@ -917,11 +917,11 @@ public:
         max_span = span;
       }
     }
-    ElementType max_spread(-1);
+    ElementType max_spread = -1;
     cutfeat = 0;
     for (int i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i) {
       ElementType span = bbox[i].high - bbox[i].low;
-      if (span > (DistanceType(1) - EPS) * max_span) {
+      if (span > (1 - EPS) * max_span) {
         ElementType min_elem, max_elem;
         computeMinMax(obj, ind, count, i, min_elem, max_elem);
         ElementType spread = max_elem - min_elem;
@@ -933,7 +933,7 @@ public:
       }
     }
     // split in the middle
-    DistanceType split_val = (bbox[cutfeat].low + bbox[cutfeat].high) / DistanceType(2);
+    DistanceType split_val = (bbox[cutfeat].low + bbox[cutfeat].high) / 2;
     ElementType min_elem, max_elem;
     computeMinMax(obj, ind, count, cutfeat, min_elem, max_elem);
 
@@ -1226,7 +1226,7 @@ public:
     if (!BaseClassRef::root_node)
       throw std::runtime_error(
           "[nanoflann] findNeighbors() called before building the index.");
-    DistanceType epsError = DistanceType(1) + DistanceType(searchParams.eps);
+    DistanceType epsError(1 + searchParams.eps);
 
     distance_vector_t
         dists; // fixed or variable-sized container (depending on DIM)
@@ -1376,7 +1376,7 @@ public:
     NodePtr bestChild;
     NodePtr otherChild;
     DistanceType cut_dist;
-    if ((diff1 + diff2) < DistanceType(0)) {
+    if ((diff1 + diff2) < 0) {
       bestChild = node->child1;
       otherChild = node->child2;
       cut_dist = distance.accum_dist(val, node->node_type.sub.divhigh, idx);
@@ -1586,7 +1586,7 @@ public:
       return false;
     if (!BaseClassRef::root_node)
       return false;
-    float epsError = 1 + searchParams.eps;
+    DistanceType epsError(1 + searchParams.eps);
 
     // fixed or variable-sized container (depending on DIM)
     distance_vector_t dists;
@@ -1694,7 +1694,7 @@ public:
   template <class RESULTSET>
   void searchLevel(RESULTSET &result_set, const ElementType *vec,
                    const NodePtr node, DistanceType mindistsq,
-                   distance_vector_t &dists, const float epsError) const {
+                   distance_vector_t &dists, const DistanceType epsError) const {
     /* If this is a leaf node, then do check and return. */
     if ((node->child1 == NULL) && (node->child2 == NULL)) {
       // count_leaf += (node->lr.right-node->lr.left);  // Removed since was
@@ -1936,10 +1936,10 @@ public:
  *
  *  Example of usage:
  * \code
- * 	Eigen::Matrix<num_t,Dynamic,Dynamic>  mat;
- * 	// Fill out "mat"...
+ *  Eigen::Matrix<num_t,Dynamic,Dynamic>  mat;
+ *  // Fill out "mat"...
  *
- * 	typedef KDTreeEigenMatrixAdaptor< Eigen::Matrix<num_t,Dynamic,Dynamic> >
+ *  typedef KDTreeEigenMatrixAdaptor< Eigen::Matrix<num_t,Dynamic,Dynamic> >
  * my_kd_tree_t; const int max_leaf = 10; my_kd_tree_t   mat_index(mat, max_leaf
  * ); mat_index.index->buildIndex(); mat_index.index->... \endcode
  *
