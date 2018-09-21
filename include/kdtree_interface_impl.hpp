@@ -229,26 +229,25 @@ public:
      void castcopytree(D*d, DN&dn, const SN&sn)
      {
  		using DT = typename my_kd_tree_t::DistanceType;
-		int div = sn->divfeat;
-		if(!sn->is_leaf())
+		if(sn->child1 == 0) // is_leaf
 		{
-			const auto & smn = sn->as_mid();
-			auto *mn = d->pool.template allocate<typename D::MidNode>();
-			mn->divfeat = smn.divfeat;
-			mn->divlow = DT(smn.divlow); // casting
-			mn->divhigh = DT(smn.divhigh); // casting
+			const auto & smn = *sn;
+			auto *mn = d->pool.template allocate<typename D::Node>();
+			mn->node_type.sub.divfeat = smn.node_type.sub.divfeat;
+			mn->node_type.sub.divlow = DT(smn.node_type.sub.divlow); // casting
+			mn->node_type.sub.divhigh = DT(smn.node_type.sub.divhigh); // casting
 			dn=mn;
 			castcopytree(d, mn->child1, smn.child1);
 			castcopytree(d, mn->child2, smn.child2);
 		}
 		else
 		{
-			const auto & sln = sn->as_leaf();
-			auto *ln = d->pool.template allocate<typename D::LeafNode >();
+			int div = sn->node_type.sub.divfeat;
+			const auto & sln = *sn;
+			auto *ln = d->pool.template allocate<typename D::Node >();
 			dn=ln;
-			ln->divfeat = sln.divfeat;
-			ln->left = sln.left;
-			ln->right = sln.right;
+			ln->node_type.lr.left = sln.node_type.lr.left;
+			ln->node_type.lr.right = sln.node_type.lr.right;
 		}     	
      }
 
