@@ -59,17 +59,15 @@ bool nolist = false;
 template <class T>
 void saveTreeObj(T & tree, std::ostream & onf, std::string pre)
 {
-	if(tree->is_leaf())
+	if((tree->child1 == NULL) && (tree->child2 == NULL))
 	{
-		auto & ln = tree->as_leaf();
-		onf << pre << " leaf " << ln.right-ln.left << " nodes from " << ln.left << std::endl;
+		onf << pre << " leaf " << tree->node_type.lr.right-tree->node_type.lr.left << " nodes from " << tree->node_type.lr.left << std::endl;
 	}
 	else
 	{
-		auto & mn = tree->as_mid();
-		onf << pre << " feat:" << mn.divfeat << " range:" << (float)mn.divlow << " " << (float)mn.divhigh << std::endl;
-		saveTreeObj(mn.child1,onf,pre+"1");	
-		saveTreeObj(mn.child2,onf,pre+"2");			
+		onf << pre << " feat:" << tree->node_type.sub.divfeat << " range:" << (float)tree->node_type.sub.divlow << " " << (float)tree->node_type.sub.divhigh << std::endl;
+		saveTreeObj(tree->child1,onf,pre+"1");	
+		saveTreeObj(tree->child2,onf,pre+"2");			
 	}
 }
 
