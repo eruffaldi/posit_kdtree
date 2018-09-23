@@ -78,8 +78,9 @@ void saveTree(T & tree, const char * f)
 	saveTreeObj(tree.root_node,onf,"");
 }
 
-template <typename src_t,typename dst_t>
-void copyPointCloud(PointCloud<dst_t> &y, const PointCloud<src_t> & x)
+
+template <typename src_t,typename dst_t, typename tmp_t = src_t>
+void copyPointCloud(PointCloud<dst_t> &y, const PointCloud<src_t> & x, tmp_t f = tmp_t())
 {
 	if((void*)&y == (void*)&x)
 		return;
@@ -89,12 +90,11 @@ void copyPointCloud(PointCloud<dst_t> &y, const PointCloud<src_t> & x)
 	{
 		typename PointCloud<dst_t>::Point & pd = y.pts[i];
 		const typename PointCloud<src_t>::Point & ps = x.pts[i];
-		pd.p.x = (dst_t)(float)ps.p.x;
-		pd.p.y = (dst_t)(float)ps.p.y;
-		pd.p.z = (dst_t)(float)ps.p.z;
+		pd.p.x = (dst_t)(tmp_t)ps.p.x;
+		pd.p.y = (dst_t)(tmp_t)ps.p.y;
+		pd.p.z = (dst_t)(tmp_t)ps.p.z;
 	}
 }
-
 template <typename num_t>
 void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const char * iot)
 {
@@ -102,7 +102,7 @@ void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const
 
 	// construct a kd-tree index:
 	typedef KDTreeSingleIndexAdaptor<
-		L2_Simple_Adaptor<num_t, PointCloud<num_t> > ,
+		L2_Adaptor<num_t, PointCloud<num_t> > ,
 		PointCloud<num_t>,
 		3 /* dim */
 		> my_kd_tree_t;
@@ -230,11 +230,11 @@ int main(int argc, char * argv[])
 	PointCloud<posit8> cloudp8;
 	auto & base = cloudp8;
 	generateRandomPointCloud(base, args::get(spoints), posit8(args::get(sspan))); // generate 10000 points over 0...10
-	copyPointCloud(cloudd,base);
-	copyPointCloud(cloudp,base);
-	copyPointCloud(cloudp12,base);
-	copyPointCloud(cloudp10,base);
-	copyPointCloud(cloudf,base);
+	copyPointCloud(cloudd,base,float());
+	copyPointCloud(cloudp,base,float());
+	copyPointCloud(cloudp12,base,float());
+	copyPointCloud(cloudp10,base,float());
+	copyPointCloud(cloudf,base,float());
 
 	int N = args::get(siter);
 	for(int i = 0; i < N; i++)

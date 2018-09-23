@@ -37,6 +37,9 @@ public:
      /// stats
      virtual void printStats() const = 0;
 
+     /// emits limits: min,max,eps
+     virtual void limits(double out[3]) const = 0;
+
 };
 
 

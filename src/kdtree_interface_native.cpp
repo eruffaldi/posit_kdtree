@@ -4,7 +4,7 @@
 	// native
 	{"float", FACTORY(float) } ,
 	{"double", FACTORY(double) } ,
-	{"float_hamming", FACTORYH(float) } ,
+	//{"float_hamming", FACTORYH(float) } ,
 	{""}
 
 };

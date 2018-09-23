@@ -18,13 +18,13 @@ extern kdd_factory_t half_factories[];
 
 static kdd_factory_t * factories[]
 {
+	native_factories,
+	half_factories,
 	cppPosit_factories,
 	softfloat_factories,
-	native_factories,
 	softposit_factories,
 	fixedpoint_factories,
-	stillwater_factories,
-	half_factories
+	stillwater_factories
 };
 
 kdtree_any_float * kdtree_any_float_create(const char * name)

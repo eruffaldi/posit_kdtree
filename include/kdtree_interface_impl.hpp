@@ -10,6 +10,7 @@
 #include <iostream>
 #include <functional>
 #include <type_traits>
+#include <limits>
 
 
 // TODO: Jaccard as in ann-benchmarks
@@ -106,6 +107,7 @@ struct Angular_Adaptor
 		// TODO CLARIFY
 		return square(a - b);
 	}
+
 };
 #endif
 
@@ -178,6 +180,13 @@ public:
 
      }
 
+     virtual void limits(double out[3]) const 
+     {
+     	out[0] = (double)std::numeric_limits<T>::max();
+     	out[1] = (double)std::numeric_limits<T>::min();
+     	out[2] = (double)std::numeric_limits<T>::epsilon();
+     }
+
      virtual void printStats() const
      {
      	if(!index)
@@ -229,7 +238,7 @@ public:
      void castcopytree(D*d, DN&dn, const SN&sn)
      {
  		using DT = typename my_kd_tree_t::DistanceType;
-		if(sn->child1 == 0) // is_leaf
+		if(sn->child1 != 0 && sn->child2 != 0) // is_leaf
 		{
 			const auto & smn = *sn;
 			auto *mn = d->pool.template allocate<typename D::Node>();
@@ -237,8 +246,14 @@ public:
 			mn->node_type.sub.divlow = DT(smn.node_type.sub.divlow); // casting
 			mn->node_type.sub.divhigh = DT(smn.node_type.sub.divhigh); // casting
 			dn=mn;
-			castcopytree(d, mn->child1, smn.child1);
-			castcopytree(d, mn->child2, smn.child2);
+			if(mn->child1)
+				castcopytree(d, mn->child1, smn.child1);
+			else
+				mn->child1 =0;
+			if(mn->child2)
+				castcopytree(d, mn->child2, smn.child2);
+			else
+				mn->child2 = 0;
 		}
 		else
 		{
@@ -251,6 +266,7 @@ public:
 		}     	
      }
 
+
      virtual bool build()
      {
      	if(index_f)
@@ -262,6 +278,7 @@ public:
      		std::cout << "cloning tree" << std::endl;
      		//cast clone
      		index->m_size = index_f->m_size;
+     		index->m_size_at_index_build = index->m_size;
      		index->dim = index_f->dim;
      		index->root_bbox.resize(index_f->dim);
      		const auto & sb = index_f->root_bbox ;

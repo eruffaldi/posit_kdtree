@@ -1,0 +1,103 @@
+--- nanoflann_git.hpp	2018-09-23 23:45:22.000000000 +0200
++++ nanoflann.hpp	2018-09-22 06:19:02.000000000 +0200
+@@ -381,7 +381,7 @@
+   L2_Adaptor(const DataSource &_data_source) : data_source(_data_source) {}
+ 
+   inline DistanceType evalMetric(const T *a, const size_t b_idx, size_t size,
+-                                 DistanceType worst_dist = -1) const {
++                                 DistanceType worst_dist = DistanceType(-1)) const {
+     DistanceType result = DistanceType();
+     const T *last = a + size;
+     const T *lastgroup = last - 3;
+@@ -395,7 +395,7 @@
+       const DistanceType diff3 = a[3] - data_source.kdtree_get_pt(b_idx, d++);
+       result += diff0 * diff0 + diff1 * diff1 + diff2 * diff2 + diff3 * diff3;
+       a += 4;
+-      if ((worst_dist > 0) && (result > worst_dist)) {
++      if ((worst_dist > DistanceType(0)) && (result > worst_dist)) {
+         return result;
+       }
+     }
+@@ -910,6 +910,7 @@
+                     IndexType &index, int &cutfeat, DistanceType &cutval,
+                     const BoundingBox &bbox) {
+     const DistanceType EPS = static_cast<DistanceType>(0.00001);
++    const DistanceType EPS1 = DistanceType(1)-EPS;
+     ElementType max_span = bbox[0].high - bbox[0].low;
+     for (int i = 1; i < (DIM > 0 ? DIM : obj.dim); ++i) {
+       ElementType span = bbox[i].high - bbox[i].low;
+@@ -917,11 +918,11 @@
+         max_span = span;
+       }
+     }
+-    ElementType max_spread = -1;
++    ElementType max_spread(-1);
+     cutfeat = 0;
+     for (int i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i) {
+       ElementType span = bbox[i].high - bbox[i].low;
+-      if (span > (1 - EPS) * max_span) {
++      if (span > EPS1 * max_span) {
+         ElementType min_elem, max_elem;
+         computeMinMax(obj, ind, count, i, min_elem, max_elem);
+         ElementType spread = max_elem - min_elem;
+@@ -933,7 +934,7 @@
+       }
+     }
+     // split in the middle
+-    DistanceType split_val = (bbox[cutfeat].low + bbox[cutfeat].high) / 2;
++    DistanceType split_val = (bbox[cutfeat].low + bbox[cutfeat].high) / DistanceType(2);
+     ElementType min_elem, max_elem;
+     computeMinMax(obj, ind, count, cutfeat, min_elem, max_elem);
+ 
+@@ -1226,7 +1227,7 @@
+     if (!BaseClassRef::root_node)
+       throw std::runtime_error(
+           "[nanoflann] findNeighbors() called before building the index.");
+-    float epsError = 1 + searchParams.eps;
++    DistanceType epsError(1 + searchParams.eps);
+ 
+     distance_vector_t
+         dists; // fixed or variable-sized container (depending on DIM)
+@@ -1345,7 +1346,7 @@
+   template <class RESULTSET>
+   bool searchLevel(RESULTSET &result_set, const ElementType *vec,
+                    const NodePtr node, DistanceType mindistsq,
+-                   distance_vector_t &dists, const float epsError) const {
++                   distance_vector_t &dists, const DistanceType epsError) const {
+     /* If this is a leaf node, then do check and return. */
+     if ((node->child1 == NULL) && (node->child2 == NULL)) {
+       // count_leaf += (node->lr.right-node->lr.left);  // Removed since was
+@@ -1376,7 +1377,7 @@
+     NodePtr bestChild;
+     NodePtr otherChild;
+     DistanceType cut_dist;
+-    if ((diff1 + diff2) < 0) {
++    if ((diff1 + diff2) < DistanceType(0)) {
+       bestChild = node->child1;
+       otherChild = node->child2;
+       cut_dist = distance.accum_dist(val, node->node_type.sub.divhigh, idx);
+@@ -1586,7 +1587,7 @@
+       return false;
+     if (!BaseClassRef::root_node)
+       return false;
+-    float epsError = 1 + searchParams.eps;
++    DistanceType epsError(1 + searchParams.eps);
+ 
+     // fixed or variable-sized container (depending on DIM)
+     distance_vector_t dists;
+@@ -1694,7 +1695,7 @@
+   template <class RESULTSET>
+   void searchLevel(RESULTSET &result_set, const ElementType *vec,
+                    const NodePtr node, DistanceType mindistsq,
+-                   distance_vector_t &dists, const float epsError) const {
++                   distance_vector_t &dists, const DistanceType epsError) const {
+     /* If this is a leaf node, then do check and return. */
+     if ((node->child1 == NULL) && (node->child2 == NULL)) {
+       // count_leaf += (node->lr.right-node->lr.left);  // Removed since was
+@@ -2035,4 +2036,4 @@
+ /** @} */ // end of grouping
+ } // namespace nanoflann
+ 
+-#endif /* NANOFLANN_HPP_ */
+\ No newline at end of file
++#endif /* NANOFLANN_HPP_ */

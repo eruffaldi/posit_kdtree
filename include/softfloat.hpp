@@ -1,9 +1,10 @@
 /**
- * C++ Wrapper of SoftFloat 
+ * C++ Wrapper of Berkeley SoftFloat 
  * Emanueel Ruffaldi 2017
  */
 #pragma once
 #include <cmath>
+#include <limits>
 extern "C"
 {
 #include "softfloat.h"
@@ -66,8 +67,12 @@ struct softfloat16
 	operator float16_t() const { return value; }
 
 	/// replace them with constants
-	static softfloat16 two() { return softfloat16(2); };
-	static softfloat16 one() { return softfloat16(1); };
+	static softfloat16 two() { return softfloat16((float16_t)0x400); };
+	// see float_traits from cppPosit
+	static softfloat16 one() { return softfloat16((float16_t)0x3C00); };
+	static softfloat16 afterone() { return softfloat16((float16_t)0x3C01); };
+	static softfloat16 max() { return softfloat16((float16_t)0x7bff); };
+	static softfloat16 min() { return softfloat16((float16_t)0x0400); };
 
 	friend softfloat16 operator+ (softfloat16 a, softfloat16 b)  { return softfloat16(f16_add(a.value,b.value)); }
 	friend softfloat16 operator- (softfloat16 a, softfloat16 b)  { return softfloat16(f16_sub(a.value,b.value)); }
@@ -119,8 +124,12 @@ struct softfloat32
 	operator float () const { return f32_to_float(value); }
 	operator double () const { return f64_to_double(f32_to_f64(value)); }
 	operator float32_t() const { return value; }
-	static softfloat32 two() { return softfloat32(2); };
-	static softfloat32 one() { return softfloat32(1); };
+	static softfloat32 two() { return softfloat32((float32_t)0x40000000); };
+	static softfloat32 one() { return softfloat32((float32_t)0x3f800000); };
+	// see float_traits from cppPosit
+	static softfloat32 afterone() { return softfloat32((float32_t)0x3f800001); };
+	static softfloat32 max() { return softfloat32((float32_t)0x7f7fffff); };
+	static softfloat32 min() { return softfloat32((float32_t)0x0800000); };
 
 	friend softfloat32 operator+ (softfloat32 a, softfloat32 b)  { return softfloat32(f32_add(a.value,b.value)); }
 	friend softfloat32 operator- (softfloat32 a, softfloat32 b)  { return softfloat32(f32_sub(a.value,b.value)); }
@@ -160,3 +169,21 @@ private:
 
 };
 
+
+namespace std {
+    template<> class numeric_limits<softfloat32> {
+    public:
+       static softfloat32 max() {return softfloat32::max(); };
+       static softfloat32 min() {return softfloat32::min(); };
+       static softfloat32 epsilon() {return softfloat32::afterone()-softfloat32::one(); };
+        // One can implement other methods if needed
+    };
+
+       template<> class numeric_limits<softfloat16> {
+    public:
+       static softfloat16 max() {return softfloat16::max(); };
+       static softfloat16 min() {return softfloat16::min(); };
+       static softfloat16 epsilon() {return softfloat16::afterone()-softfloat16::one(); };
+        // One can implement other methods if needed
+    };
+}
