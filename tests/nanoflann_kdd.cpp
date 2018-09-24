@@ -42,18 +42,7 @@
 using namespace std;
 using namespace nanoflann;
 
-class posit10x: public posit10
-{
-public:
-	using posit10::posit10;
 
-/*
-	operator FPT() const = delete;
-	operator float() const = delete;
-	operator double() const = delete;
-	operator int() const = delete;
-*/
-};
 float radius=0.1;
 bool nolist = false;
 
@@ -234,12 +223,14 @@ int main(int argc, char * argv[])
 	radius=args::get(sradius);
 	nolist = !args::get(alist);
 
+	using p16=Posit<int16_t,8,1,uint32_t,false>;
 	PointCloud<float> cloudf;
 	PointCloud<double> cloudd;
 	PointCloud<P> cloudp;
 	PointCloud<posit12> cloudp12;
 	PointCloud<posit10> cloudp10;
 	PointCloud<posit8> cloudp8;
+	PointCloud<p16> cloudp16;
 	auto & base = cloudp8;
 	generateRandomPointCloud(base, args::get(spoints), posit8(args::get(sspan))); // generate 10000 points over 0...10
 	copyPointCloud(cloudd,base,float());
@@ -247,6 +238,7 @@ int main(int argc, char * argv[])
 	copyPointCloud(cloudp12,base,float());
 	copyPointCloud(cloudp10,base,float());
 	copyPointCloud(cloudf,base,float());
+	copyPointCloud(cloudp16,base,float());
 
 	my_kd_tree_t_float * pff = 0;
 	if(sfloat)
@@ -274,20 +266,30 @@ int main(int argc, char * argv[])
 	for(int i = 0; i < N+1; i++)
 	{
 		if(i == 0)
-		std::cout << "\n-----------------\nXPosit10 Tabulated\n";
+		std::cout << "\n-----------------\nPosit10 first\n";
 	else
-		std::cout << "\n-----------------\nPosit10 Tabulated\n";
+		std::cout << "\n-----------------\nPosit10\n";
 	    kdtree_demo<posit10>(cloudp10,0,"p10index.txt",pff);
 	}
 
 	for(int i = 0; i < N+1; i++)
 	{
 		if(i == 0)
-		std::cout << "\n-----------------\nXPosit8 Tabulated\n";
+		std::cout << "\n-----------------\nPosit8 first\n";
 	else
-		std::cout << "\n-----------------\nPosit8 Tabulated\n";
+		std::cout << "\n-----------------\nPosit8\n";
 	    kdtree_demo<posit8>(cloudp8,0,"p8index.txt",pff);
 	}	
+
+	for(int i = 0; i < N+1; i++)
+	{
+		if(i == 0)
+		std::cout << "\n-----------------\nPosit16 first\n";
+	else
+		std::cout << "\n-----------------\nPosit16\n";
+	    kdtree_demo<p16 >(cloudp16,0,"p16index.txt",pff);
+	}	
+
 	delete pff;
 	return 0;
 }
