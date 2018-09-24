@@ -28,6 +28,7 @@
 
 #include <nanoflann.hpp>
 #include "nanoflann_utils.hpp"
+#include "nanoflann_castclone.hpp"
 #include "posit.h"
 #include "posit12.hpp"
 #include "posit10.hpp"
@@ -95,17 +96,21 @@ void copyPointCloud(PointCloud<dst_t> &y, const PointCloud<src_t> & x, tmp_t f =
 		pd.p.z = (dst_t)(tmp_t)ps.p.z;
 	}
 }
+
+// construct a kd-tree index:
+template <class num_t>
+using baseindex =  KDTreeSingleIndexAdaptor<
+	L2_Adaptor<num_t, PointCloud<num_t> > ,
+	PointCloud<num_t>,
+	3 /* dim */
+	>;
+using my_kd_tree_t_float = baseindex<float>;
+
 template <typename num_t>
-void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const char * iot)
+void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const char * iot, my_kd_tree_t_float *ff)
 {
 
-
-	// construct a kd-tree index:
-	typedef KDTreeSingleIndexAdaptor<
-		L2_Adaptor<num_t, PointCloud<num_t> > ,
-		PointCloud<num_t>,
-		3 /* dim */
-		> my_kd_tree_t;
+	using my_kd_tree_t = baseindex<num_t>;
 
 
 	my_kd_tree_t   index(3 /*dim*/, cloud, KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
@@ -115,7 +120,12 @@ void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const
     auto endA = std::chrono::high_resolution_clock::now();
 
     auto begin = std::chrono::high_resolution_clock::now();
-	index.buildIndex();
+    if(ff)
+    {
+    	castcopyindexs(ff,&index);
+    }
+    else
+		index.buildIndex();
     auto end = std::chrono::high_resolution_clock::now();
     if(iot != 0)
     {
@@ -126,8 +136,9 @@ void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const
 		*/
 		saveTree(index,iot);
     }
-	std::cout << "bbox time:" << std::chrono::duration_cast<std::chrono::microseconds>(endA - beginA).count() << std::endl;
-	std::cout << "building time:" << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+	std::cout << "item size:" << sizeof(num_t) << std::endl;
+	std::cout << "bbox time(us):" << std::chrono::duration_cast<std::chrono::microseconds>(endA - beginA).count() << std::endl;
+	std::cout << "building time(us):" << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 	std::cout << "index memory:" << index.usedMemory(index) << std::endl;
 	std::cout << "points: " << index.m_size << " dim:" <<  index.dim << " indice:" << index.vind.size() << " m_leaf_max_size:" << index.m_leaf_max_size << std::endl;
 	std::cout << "EPS inside " << (float)(static_cast<num_t>(0.00001)) << " and " << (float)(num_t(1) - num_t(0.00001)) << std::endl;
@@ -156,7 +167,7 @@ void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const
 		// In case of less points in the tree than requested:
 		ret_index.resize(num_results);
 		out_dist_sqr.resize(num_results);
-		std::cout << "knnSearch time:" << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+		std::cout << "knnSearch time(us):" << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 
 		cout << "knnSearch(): num_results=" << num_results << "\n";
 		if(!nolist)
@@ -193,9 +204,10 @@ int main(int argc, char * argv[])
 {
 	args::ArgumentParser parser("nanoflann test",                                "");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
-    args::ValueFlag<int> siter(parser, "iter", "Iterations", {'i', "itrations"},3);
+    args::ValueFlag<int> siter(parser, "iter", "Iterations", {'i', "iterations"},3);
     args::ValueFlag<float> sspan(parser, "span", "Span", {'s', "span"},10.0);
     args::ValueFlag<bool> ssave(parser, "save", "Save", {'S', "save"},false);
+    args::ValueFlag<bool> sfloat(parser, "usefloat", "usefloat", {'f', "float"},false);
     args::ValueFlag<float> sradius(parser, "radius", "Radius", {'r', "radius"},0.1);
     args::ValueFlag<int> spoints(parser, "points", "Points", {'n', "points"},10000);
     args::ValueFlag<bool> alist(parser, "list", "List Results", {'l', "list"},false);
@@ -236,16 +248,23 @@ int main(int argc, char * argv[])
 	copyPointCloud(cloudp10,base,float());
 	copyPointCloud(cloudf,base,float());
 
+	my_kd_tree_t_float * pff = 0;
+	if(sfloat)
+	{
+		pff = new my_kd_tree_t_float(3,  cloudf, KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
+		pff->buildIndex();
+	}
+
 	int N = args::get(siter);
 	for(int i = 0; i < N; i++)
 	{
 		std::cout << "\n-----------------\nDouble Precision\n";
-		kdtree_demo<double>(cloudd,"doubleindex","doubleindex.txt");
+		kdtree_demo<double>(cloudd,"doubleindex","doubleindex.txt",pff);
 	}
 	for(int i = 0; i < N; i++)
 	{
 		std::cout << "\n-----------------\nSingle Precision\n";
-		kdtree_demo<float>(cloudf,0,"singleindex.txt");
+		kdtree_demo<float>(cloudf,0,"singleindex.txt",pff);
 	}
 	/*std::cout << "\n-----------------\n" << typeid(P).name() << std::endl;
 	kdtree_demo<P>(cloudp);
@@ -258,7 +277,7 @@ int main(int argc, char * argv[])
 		std::cout << "\n-----------------\nXPosit10 Tabulated\n";
 	else
 		std::cout << "\n-----------------\nPosit10 Tabulated\n";
-	    kdtree_demo<posit10>(cloudp10,0,"p10index.txt");
+	    kdtree_demo<posit10>(cloudp10,0,"p10index.txt",pff);
 	}
 
 	for(int i = 0; i < N+1; i++)
@@ -267,8 +286,9 @@ int main(int argc, char * argv[])
 		std::cout << "\n-----------------\nXPosit8 Tabulated\n";
 	else
 		std::cout << "\n-----------------\nPosit8 Tabulated\n";
-	    kdtree_demo<posit8>(cloudp8,0,"p8index.txt");
+	    kdtree_demo<posit8>(cloudp8,0,"p8index.txt",pff);
 	}	
+	delete pff;
 	return 0;
 }
 

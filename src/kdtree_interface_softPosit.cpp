@@ -11,9 +11,9 @@ Requires
 
 kdd_factory_t softposit_factories[] = {
 	// tabulated
-	{"softposit8", FACTORY(posit8) } ,
-	{"softposit16", FACTORY(posit16) } ,
-	{"softposit32", FACTORY(posit32) } ,
+	{"softposit8_0", FACTORY(posit8) } ,
+	{"softposit16_1", FACTORY(posit16) } ,
+	{"softposit32_2", FACTORY(posit32) } ,
 	{"" }
 	/*{"posit10", FACTORY(posit10) },*/
 	// softfloat 16bit ... TODO make it tabulated

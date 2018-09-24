@@ -2,6 +2,7 @@
 #include "kdtree_interface.hpp"
 #include "nanoflann.hpp"
 #include "nanoflann_utils.hpp"
+#include "nanoflann_castclone.hpp"
 #include <ctime>
 #include <chrono>
 #include <cstdlib>
@@ -269,29 +270,12 @@ public:
 
      virtual bool build()
      {
-     	if(index_f)
+     	if(index_f && index)
      	{
 		    typename my_kd_tree_float_t::BoundingBox bb;
 		    index_f->computeBoundingBox(bb);
      		index_f->buildIndex();
-     		
-     		std::cout << "cloning tree" << std::endl;
-     		//cast clone
-     		index->m_size = index_f->m_size;
-     		index->m_size_at_index_build = index->m_size;
-     		index->dim = index_f->dim;
-     		index->root_bbox.resize(index_f->dim);
-     		const auto & sb = index_f->root_bbox ;
-     		auto & db = index->root_bbox ;
-     		using DT = typename my_kd_tree_t::DistanceType;
-     		for(int i = 0; i < index->dim; i++)
-     		{
-     			db[i].low = DT(sb[i].low); // cast
-     			db[i].high = DT(sb[i].high); // cast
-     		}
-     		index->m_leaf_max_size = index_f->m_leaf_max_size;
-     		index->vind = index_f->vind;
-     		castcopytree(index.get(),index->root_node,index_f->root_node);
+     		castcopyindex(index_f.get(),index.get());     		
      		return true;     		
      	}
      	else if(index)
