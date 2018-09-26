@@ -3,7 +3,6 @@
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 #include <boost/python/extract.hpp>
-#include <boost/numpy.hpp>
 #include <string>
 #include <sstream>
 #include <iostream>
