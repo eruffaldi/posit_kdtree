@@ -356,7 +356,5 @@ public:
 #endif
 
 #define FACTORY(T) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<T,nanoflann::L2_Adaptor>(); }) 
-#define FACTORYPOSIT(stype,bits,esbits,ftype,withnan) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<Posit<stype,bits,esbits,ftype,withnan>,nanoflann::L2_Adaptor >(); }) 
 
 #define FACTORYH(T) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<T,Hamming_Adaptor>(); }) 
-#define FACTORYPOSITH(stype,bits,esbits,ftype,withnan) std::function<kdtree_any_float*()>([] () { return new kdtree_any_float_impl<Posit<stype,bits,esbits,ftype,withnan>,Hamming_Adaptor >(); }) 
