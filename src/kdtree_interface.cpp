@@ -11,20 +11,35 @@ kdd_factory_t __attribute__((weak)) softposit_factories[] = { {""} };
 extern kdd_factory_t cppPosit_factories[] ;
 extern kdd_factory_t softfloat_factories[] ;
 extern kdd_factory_t native_factories[] ;
+#ifdef HASSOFTPOSIT
 extern kdd_factory_t  softposit_factories[];
+#endif
+#ifdef HASSGFIXEDPOINT
 extern kdd_factory_t fixedpoint_factories[];
+#endif
+#ifdef HASSTILLWATER
 extern kdd_factory_t stillwater_factories[];
+#endif
+#ifdef HASHALF
 extern kdd_factory_t half_factories[];
-
+#endif
 static kdd_factory_t * factories[]
 {
 	native_factories,
+#ifdef HASHALF
 	half_factories,
+#endif
 	cppPosit_factories,
 	softfloat_factories,
+#ifdef HASSOFTPOSIT
 	softposit_factories,
+#endif
+#ifdef HASSGFIXEDPOINT
 	fixedpoint_factories,
+#endif
+#ifdef HASSTILLWATER
 	stillwater_factories
+#endif
 };
 
 kdtree_any_float * kdtree_any_float_create(const char * name)
