@@ -10,7 +10,7 @@
 #include "kdtree_interface.hpp"
 
 namespace py = boost::python;
-namespace np = boost::python::numpy;
+//namespace np = boost::python::numpy;
 
 class kdtree_any_float_wrap
 {
