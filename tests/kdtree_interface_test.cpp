@@ -31,26 +31,28 @@ int main(int argc, char const *argv[])
 {
 	args::ArgumentParser parser("KDD tester");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
-    args::Command aList(parser, "list","list types");
-    args::Command aLimits(parser, "limits","limits of type(s)");
-    args::Command aAllLimits(parser, "alllimits","limits of all type(s)");
-    args::Command aRun(parser, "run","run test");
-    args::Command aGenTrain(parser, "gentrain","gen train");
-    args::Command aGenTest(parser, "gentest","gen test");
-    args::ValueFlag<std::string> aInput(parser, "input", "The input file with rows NxD. Float binary file", {'i'});
-    args::ValueFlag<std::string> aTestfile(parser, "test", "The test file with rows MxD. Float binary file (TODO JSON)", {'t'});
-    args::ValueFlag<std::string> aOutput(parser, "output", "The output file JSON: points matched", {'o'});
-    args::ValueFlag<int> aD(parser, "dim", "The number of dimensions", {'d'});
-    args::ValueFlag<int> aK(parser, "k", "The number of neightbors", {'k'});
-    args::ValueFlag<int> aS(parser, "s", "The number of outputs for radius search", {'s'});
-    args::ValueFlag<int> aMaxLeaf(parser, "maxleaf", "Max leaves", {"maxleaf"});
-    args::ValueFlag<float> aR(parser, "r", "The radius", {'r'});
+    args::Group commands(parser, "commands");
+    args::Command aList(commands, "list","list types");
+    args::Command aLimits(commands, "limits","limits of type(s)");
+    args::Command aAllLimits(commands, "alllimits","limits of all type(s)");
+    args::Command aRun(commands, "run","run test");
+    args::Command aGenTrain(commands, "gentrain","gen train");
+    args::Command aGenTest(commands, "gentest","gen test");
+    args::Group arguments(parser, "arguments", args::Group::Validators::DontCare, args::Options::Global);
+    args::ValueFlag<std::string> aInput(arguments, "input", "The input file with rows NxD. Float binary file", {'i'});
+    args::ValueFlag<std::string> aTestfile(arguments, "test", "The test file with rows MxD. Float binary file (TODO JSON)", {'t'});
+    args::ValueFlag<std::string> aOutput(arguments, "output", "The output file JSON: points matched", {'o'});
+    args::ValueFlag<int> aD(arguments, "dim", "The number of dimensions", {'d'});
+    args::ValueFlag<int> aK(arguments, "k", "The number of neightbors", {'k'});
+    args::ValueFlag<int> aS(arguments, "s", "The number of outputs for radius search", {'s'});
+    args::ValueFlag<int> aMaxLeaf(arguments, "maxleaf", "Max leaves", {"maxleaf"});
+    args::ValueFlag<float> aR(arguments, "r", "The radius", {'r'});
     //args::ValueFlag<float> aEPS(parser, "e", "The epsilon for search", {'e','eps'},0);
-    args::ValueFlagList<std::string> aTypes(parser, "types", "The types flag", {'T'});
-    args::ValueFlag<bool> abuildfloat(parser, "buildfloat", "Build From Float Tree", {'f', "float"},false);
-    args::ValueFlag<int> aitems(parser,"items","Generate items",{"c","count"},1000);
-    args::ValueFlag<float> amaxrange(parser,"max_range","Max Range",{"R","maxrange"},1.0);
-    args::ValueFlag<float> aminrange(parser,"min_range","Min Range",{"r","minrange"},0.0);
+    args::ValueFlagList<std::string> aTypes(arguments, "types", "The types flag", {'T'});
+    args::ValueFlag<bool> abuildfloat(arguments, "buildfloat", "Build From Float Tree", {'f', "float"},false);
+    args::ValueFlag<int> aitems(arguments,"items","Generate items",{"c","count"},1000);
+    args::ValueFlag<float> amaxrange(arguments,"max_range","Max Range",{"R","maxrange"},1.0);
+    args::ValueFlag<float> aminrange(arguments,"min_range","Min Range",{"r","minrange"},0.0);
 
     // TODO: create groundtruth with bruteforce
     // TODO: load/save tree as type T
