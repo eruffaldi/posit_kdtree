@@ -55,6 +55,6 @@ endif()
 add_library(nanoflann_any STATIC src/kdtree_interface.cpp src/kdtree_interface_cppPosit.cpp src/kdtree_interface_native.cpp src/kdtree_interface_softfloat.cpp ${EXTRASRC})
 target_link_libraries(nanoflann_any posittab softfloat16 softfloat)
 
-add_executable(nanoflann_any_test tests/kdtree_interface_test.cpp)
+add_executable(nanoflann_any_test extern/backward.cpp tests/kdtree_interface_test.cpp)
 target_link_libraries(nanoflann_any_test nanoflann_any)
 add_subdirectory(python)

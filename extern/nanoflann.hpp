@@ -866,15 +866,15 @@ public:
 
       // compute bounding-box of leaf points
       for (int i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i) {
-        bbox[i].low = dataset_get(obj, obj.vind[left], i);
-        bbox[i].high = dataset_get(obj, obj.vind[left], i);
+        bbox[i].low = bbox[i].high = dataset_get(obj, obj.vind[left], i);
       }
       for (IndexType k = left + 1; k < right; ++k) {
         for (int i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i) {
-          if (bbox[i].low > dataset_get(obj, obj.vind[k], i))
-            bbox[i].low = dataset_get(obj, obj.vind[k], i);
-          if (bbox[i].high < dataset_get(obj, obj.vind[k], i))
-            bbox[i].high = dataset_get(obj, obj.vind[k], i);
+          const auto vi = dataset_get(obj, obj.vind[k], i);
+          if (bbox[i].low > vi)
+            bbox[i].low = vi;
+          else if (bbox[i].high < vi)
+            bbox[i].high = vi;
         }
       }
     } else {
@@ -1890,7 +1890,8 @@ public:
       for (int i = 0; i < pos; i++) {
         for (int j = 0; j < static_cast<int>(index[i].vind.size()); j++) {
           index[pos].vind.push_back(index[i].vind[j]);
-          treeIndex[index[i].vind[j]] = pos;
+          if (treeIndex[index[i].vind[j]] != -1)
+            treeIndex[index[i].vind[j]] = pos;
         }
         index[i].vind.clear();
         index[i].freeIndex(index[i]);

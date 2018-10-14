@@ -12,4 +12,4 @@ Clone using --recurse-submodules
 
 ./nanoflann_any_test alllimits
 
-./nanoflann_any_test run
+tests/kdtree_interface_test_run.sh

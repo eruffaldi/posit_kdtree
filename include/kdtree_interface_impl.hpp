@@ -119,9 +119,10 @@ struct NDDataHolder
 	int stride,rows,dim;
 	std::vector<T>  pts; // matrix
 
-	NDDataHolder(int arows, int adim, int astride): rows(arows),pts(rows*stride),dim(adim),stride(astride)
+	NDDataHolder(int arows, int adim, int astride): rows(arows),pts(arows*astride),dim(adim),stride(astride)
 	{
 	}
+
 
 	// Must return the number of data points
 	inline IndexType kdtree_get_point_count() const { return rows; }
@@ -129,9 +130,9 @@ struct NDDataHolder
 	// Returns the dim'th component of the idx'th point in the class:
 	// Since this is inlined and the "dim" argument is typically an immediate value, the
 	//  "if/else's" are actually solved at compile time.
-	inline T kdtree_get_pt(const IndexType idx, int dim) const
+	inline T kdtree_get_pt(const IndexType idx, int xdim) const
 	{
-		return pts[idx*stride+dim];
+		return pts[idx*stride+xdim];
 	}
 
 	// Optional bounding-box computation: return false to default to a standard bbox computation loop.
@@ -204,23 +205,29 @@ public:
 
      virtual bool initFromFloatTree(const float * data, int rows, int dim, int maxleaf) 
      {
+     	if(maxleaf <= 0)
+     		maxleaf = 1;
      	dim_ = dim;
      	cloud_f = std::make_shared<NDDataHolder<float,IndexType>> (rows,dim,dim);
      	cloud = std::make_shared<NDDataHolder<num_t,IndexType> > (rows,dim,dim);
-     	if(!cloud_f)
+     	if(!cloud_f || !cloud)
+     	{
      		return false;
+     	}
      	else
      	{
 	     	castcopy(data,data+rows*dim,cloud->pts.begin());
 	     	castcopy(data,data+rows*dim,cloud_f->pts.begin());
 	     	index_f = std::make_shared<my_kd_tree_float_t>(dim_, *cloud_f, nanoflann::KDTreeSingleIndexAdaptorParams(maxleaf /* max leaf */) );
 	     	index = std::make_shared<my_kd_tree_t>(dim_, *cloud, nanoflann::KDTreeSingleIndexAdaptorParams(maxleaf /* max leaf */) );
-	     	return (bool)(index_f) && (bool)index;
+	     	return (bool)index_f && (bool)index;
 	     }
      }
 
      virtual bool init(const float * data, int rows, int dim, int maxleaf) 
      {
+     	if(maxleaf <= 0)
+     		maxleaf = 1;
      	dim_ = dim;
      	cloud = std::make_shared<NDDataHolder<num_t,IndexType>> (rows,dim,dim);
      	if(!cloud)
@@ -235,6 +242,7 @@ public:
 	     }
      }
 
+     /*
      template <class D, class DN, class SN>
      void castcopytree(D*d, DN&dn, const SN&sn)
      {
@@ -247,11 +255,11 @@ public:
 			mn->node_type.sub.divlow = DT(smn.node_type.sub.divlow); // casting
 			mn->node_type.sub.divhigh = DT(smn.node_type.sub.divhigh); // casting
 			dn=mn;
-			if(mn->child1)
+			if(smn->child1)
 				castcopytree(d, mn->child1, smn.child1);
 			else
 				mn->child1 =0;
-			if(mn->child2)
+			if(smn->child2)
 				castcopytree(d, mn->child2, smn.child2);
 			else
 				mn->child2 = 0;
@@ -266,6 +274,7 @@ public:
 			ln->node_type.lr.right = sln.node_type.lr.right;
 		}     	
      }
+     */
 
 
      virtual bool build()
@@ -282,7 +291,7 @@ public:
      	{
 		    typename my_kd_tree_t::BoundingBox bb;
 		    index->computeBoundingBox(bb);
-     		index->buildIndex();
+		 	index->buildIndex();
      		return true;
      	}
      	else

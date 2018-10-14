@@ -5,17 +5,20 @@
 #include <chrono>
 
 template <class T>
-std::vector<float> loadbinary(std::string f)
+std::vector<T> loadbinary(std::string f)
 {
     std::ifstream fi(f.c_str(),std::ios::binary);
     if(!fi)
-        return std::vector<T> (0);
+        return std::vector<T> ();
     fi.seekg (0, std::ios::end);
     auto s = fi.tellg();
     fi.seekg( 0, std::ios::beg );
     std::vector<T> r(s/sizeof(T));
     fi.read((char*)&r[0],r.size()*sizeof(T));
-    return r;
+    if(!fi)
+        return std::vector<T> ();
+    else
+        return r;
 }
 
 template <class T>
@@ -45,7 +48,7 @@ int main(int argc, char const *argv[])
     args::ValueFlag<int> aD(arguments, "dim", "The number of dimensions", {'d'});
     args::ValueFlag<int> aK(arguments, "k", "The number of neightbors", {'k'});
     args::ValueFlag<int> aS(arguments, "s", "The number of outputs for radius search", {'s'});
-    args::ValueFlag<int> aMaxLeaf(arguments, "maxleaf", "Max leaves", {"maxleaf"});
+    args::ValueFlag<int> aMaxLeaf(arguments, "maxleaf", "Max leaves", {"maxleaf"},10);
     args::ValueFlag<float> aR(arguments, "r", "The radius", {'r'});
     //args::ValueFlag<float> aEPS(parser, "e", "The epsilon for search", {'e','eps'},0);
     args::ValueFlagList<std::string> aTypes(arguments, "types", "The types flag", {'T'});
@@ -113,24 +116,40 @@ int main(int argc, char const *argv[])
             }
             std::cout << t << "\t" << q[0] << "\t" << q[1] << "\t" << q[2] << std::endl; 
         }
-    }    else if(args::get(aGenTrain) || args::get(aGenTest))
+    }    
+    else if(args::get(aGenTrain) || args::get(aGenTest))
     {
-        int n = args::get(aitems);
-        int dim = args::get(aD);
-        float mr = args::get(aminrange);
-        float MR = args::get(amaxrange);
-        float s = MR-mr;
-        std::vector<float> q(n*dim);
-        for(int i = 0; i < q.size(); i++)
+        const auto output = args::get(aGenTrain) ? args::get(aInput): args::get(aTestfile);
+        if(!output.empty())
         {
-            q[i] = s * (float(rand() % 1000) / float(1000)) + mr;
+            const int n = args::get(aitems);
+            const int dim = args::get(aD);
+            const float mr = args::get(aminrange);
+            const float MR = args::get(amaxrange);
+            const float s = MR-mr;
+            std::vector<float> q(n*dim);
+            for(int i = 0; i < q.size(); i++)
+            {
+                q[i] = s * (float(rand() % 1000) / float(1000)) + mr;
+            }
+            std::cout << "generating test file " << output << std::endl;
+            savebinary<float>(output,&q[0],q.size()); 
         }
-        savebinary<float>(args::get(aGenTrain) ? args::get(aInput): args::get(aTestfile),&q[0],q.size()); 
     }
     else if(args::get(aRun))
     {
 	    auto si = loadbinary<float>(args::get(aInput));
         auto st = loadbinary<float>(args::get(aTestfile));
+        if(si.empty())
+        {
+            std::cerr << "empty input train file " << aInput << std::endl;
+            return -1;
+        }
+        if(st.empty())
+        {
+            std::cerr << "empty input test file " << aTestfile << std::endl;
+            return -1;
+        }
         int dim = args::get(aD);
         bool hasoutput = !args::get(aOutput).empty();
         bool buildfloat = args::get(abuildfloat);
@@ -139,31 +158,34 @@ int main(int argc, char const *argv[])
             std::cerr << "dim required positive" << std::endl;
             return -1;
         }
+        std::cout << "Train: " << si.size() << " Test:" << st.size() << " Dim:"<< dim << " With output:" << args::get(aOutput) << "Build Float: " << buildfloat << std::endl;
 
         typename picojson::array jtests;
         for(auto & t: args::get(aTypes))
         {
+            std::cout << "\nprocessing type " << t << std::endl;
             jtests.push_back(picojson::value(picojson::object()));
             typename picojson::object & jtestmap = jtests.back().get<picojson::object>();
             //picojson::value & jtest = 
             jtestmap["type"] = picojson::value(t);
 
-            std::cout << "processing type " << t << std::endl;
             kdtree_any_float * p = kdtree_any_float_create(t.c_str());
             if(!p)
             {
                 jtestmap["typeresult"] = picojson::value("missing");
-                std::cout << "\tmissing " << t << std::endl;
+                std::cout << "\tmissing processing type " << t << std::endl;
                 continue;
             }
             else
             {
                 jtestmap["typeresult"] = picojson::value("ok");
             }
+            std::cerr << "processing type " << t << " found " << std::endl;
             if(buildfloat)
                 p->initFromFloatTree(&si[0],si.size()/dim,dim,args::get(aMaxLeaf));
             else
                 p->init(&si[0],si.size()/dim,dim,args::get(aMaxLeaf));
+            std::cerr << "inited" << std::endl;
             // measure time
             auto beginB = std::chrono::high_resolution_clock::now();
             bool b = p->build();
@@ -174,8 +196,14 @@ int main(int argc, char const *argv[])
                 std::cout << "\tbuild " << t << " failed" << std::endl;
                 continue;
             }
+            else
+            {
+                std::cerr << "built\n";
+            }
             if(args::get(aK) > 0) // K search
             {
+                std::cerr << "K search" << std::endl;
+
                 std::vector<size_t> output(args::get(aK));
                 std::vector<picojson::value> jps;
                 for(int i = 0; i < jps.size()/dim; i++)
@@ -190,6 +218,7 @@ int main(int argc, char const *argv[])
             }
             else if(args::get(aS) > 0) // r search
             {
+                std::cerr << "R search" << std::endl;
                 std::vector<size_t> output(args::get(aS));
                 for(int i = 0; i < st.size()/dim; i++)
                 {
@@ -200,6 +229,7 @@ int main(int argc, char const *argv[])
         }
         if(hasoutput)
         {
+            std::cerr << "final output" << std::endl;
             picojson::value jroot(jtests);
             std::string json = jroot.serialize();
             std::ofstream onf(args::get(aOutput),std::ios::binary);
