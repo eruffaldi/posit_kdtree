@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function 
-print("pre")
 import pynanoflann_any
-print("post")
 import numpy as np
 import ctypes
 
@@ -24,12 +22,12 @@ def arrays_share_data(x, y):
 
 def ndarray2ptr(a,dt):
 	if a.dtype != dt:
-		raise Exception("Expected " + dt)
+		raise Exception("Expected dtype:" + dt + " got:" + a.dtype + " in ndarray2ptr")
 	if not a.flags['C_CONTIGUOUS']:
-		raise Exception("Expected C_CONTIGUOUS")
+		raise Exception("Expected C_CONTIGUOUS in ndarray2ptr")
 	if len(a.strides) == 2:
 		if a.strides[0] == a.shape[1]*a.dtype.itemsize and a.strides[0] == 1:
-			raise Exception("Expected row major and not " + a.ctypes.strides)
+			raise Exception("Expected flat with row major. The stride is: " + a.ctypes.strides)
 	v = a.ctypes.data_as(ctypes.c_void_p)#.value
 	#print ("ndarray2ptr",a[0:3,:],a.dtype,a.shape,v,dir(v),"to",v.value,aid(aid))
 	return v.value
@@ -40,27 +38,45 @@ def doknnsearch(index,qp,k):
 	rb = np.zeros(k,dtype=rt)
 	qp = np.array(qp).astype(np.float32)
 	n = index.knnSearchx(k,ndarray2ptr(qp,np.float32),ndarray2ptr(rb,rt))
+	print("answer items",n,"over",k)
 	return rb[0:n]
 
-def doradiussearch(index,r,qp,nres):
+def doradiussearch(index,radius,qp,nres):
 	rt = np.int32 if index.indexsize() == 4  else np.int64
 	rb = np.zeros(nres,dtype=rt)
 	qp = np.array(qp).astype(np.float32)
-	n = index.radiusSearchx(r,ndarray2ptr(qp,np.float32),nres,ndarray2ptr(rb,rt))
+	n = index.radiusSearchx(radius,ndarray2ptr(qp,np.float32),nres,ndarray2ptr(rb,rt))
+	print("answer items",n,"over",nres)
 	return rb[0:n]
 
 
 def main():
+	import argparse
+
+	parser = argparse.ArgumentParser(description='Process some integers.')
+	parser.add_argument('--float',action="store_true")
+	parser.add_argument('--type','-t',default="all")
+	parser.add_argument('--points','-n',default=10,type=int)
+	parser.add_argument('--dims','-d',default=4,type=int)
+	parser.add_argument('--maxleaf',default=10,type=int)
+
+	args = parser.parse_args()
 	print("main")	
 	print(dir(pynanoflann_any))
 	xclass = pynanoflann_any.kdtree_any_float
 	allt = xclass.list()
+	if args.type == "query":
+		print(allt)
+		return
+	elif args.type != "all":
+		allt = [args.type]
 	print ("variants:",allt)
 
-	data = np.zeros((10,4),dtype=np.float32)
+	data = np.zeros((args.points,args.dims),dtype=np.float32)
 	print(data.flags['C_CONTIGUOUS'],data.dtype)
-	data[0,:] = (3,2,7,8)
-	data[1,:] = (3,2,8,9)
+	if args.dims == 4:
+		data[0,:] = (3,2,7,8)
+		data[1,:] = (3,2,8,9)
 	#print ("init",data)
 	for bt in allt:
 		t = xclass(bt)
@@ -71,17 +87,24 @@ def main():
 		#print ("build",data.shape[0])
 		#print(t.buildnp(data,10)) # data,rows,dim,maxleaf
 		print ("\n\nbt ------ " ,bt)
-		print (" building ",t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],10,False)) # data,rows,dim,maxleaf
-		print(" ",t.printStats())
-		print (" ",doknnsearch(t,(3,2,7,8),10))
-		print (" ",doradiussearch(t,5,(3,2,7,8),10))
+		print("indexsize",t.indexsize())
+		print("building")
+		bb = t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],args.maxleaf,False)		
+		print("build result",bb)
+		print(" stats",t.printStats())
+		if args.dims == 4:
+			print (" knn:",doknnsearch(t,(3,2,7,8),10))
+			print (" rs:",doradiussearch(t,5,(3,2,7,8),10))
 
-		if False:
+		if args.float:
 			print ("\n\nbt ------ float -> " ,bt)
-			print (" building ",t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],10,True)) # data,rows,dim,maxleaf
+			print("building")
+			bb = t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],args.maxleaf,True)		
+			print("build result",bb)
 			print(" ",t.printStats())
-			print (" ",doknnsearch(t,(3,2,7,8),10))
-			print (" ",doradiussearch(t,5,(3,2,7,8),10))
+			if args.dims == 4:
+				print (" ",doknnsearch(t,(3,2,7,8),10))
+				print (" ",doradiussearch(t,5,(3,2,7,8),10))
 
 if __name__ == '__main__':
 	main()

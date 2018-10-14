@@ -34,6 +34,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/extest.py ${CMAKE_CURRENT_BINARY_DIR}
 #PYTHON_ADD_MODULE(nanoflanns nanoflanns.cpp)
 #configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanotest.py ${CMAKE_CURRENT_BINARY_DIR}/nanotest.py COPYONLY)
 
-PYTHON_ADD_MODULE(pynanoflann_any pynanoflann_any.cpp)
+PYTHON_ADD_MODULE(pynanoflann_any pynanoflann_any.cpp ../extern/backward.cpp)
 target_link_libraries(pynanoflann_any nanoflann_any)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/nanoflann_any.py ${CMAKE_CURRENT_BINARY_DIR}/nanoflann_any.py COPYONLY)
