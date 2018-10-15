@@ -59,6 +59,7 @@ def main():
 	parser.add_argument('--points','-n',default=10,type=int)
 	parser.add_argument('--dims','-d',default=4,type=int)
 	parser.add_argument('--maxleaf',default=10,type=int)
+	parser.add_argument('--info','-i',action="store_true")
 
 	args = parser.parse_args()
 	print("main")	
@@ -70,6 +71,17 @@ def main():
 		return
 	elif args.type != "all":
 		allt = [args.type]
+	if args.info:
+		import tabulate
+		x=[]
+		for bt in allt:
+			t = xclass(bt)
+			l = np.array((0,0,0),dtype=np.float64)
+			t.limitsx(ndarray2ptr(l,np.float64))
+			x.append(dict(name=bt,itemsize=t.itemsize(),itemalign=t.itemalign(),indexsize=t.indexsize(),selfname=t.name(),limits=l))
+
+		print(tabulate.tabulate(x))
+		return
 	print ("variants:",allt)
 
 	data = np.zeros((args.points,args.dims),dtype=np.float32)

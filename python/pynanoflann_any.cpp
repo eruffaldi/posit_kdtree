@@ -105,6 +105,11 @@ public:
             return radiusSearch(search_radius,reinterpret_cast<const float*>(point),num_results,reinterpret_cast<kdtree_any_float::IndexType*>(output));
     }
 
+    int limitsx(std::intptr_t q)
+    {
+        return limits(reinterpret_cast<double*>(q));
+    }
+
     int limits(double q[3])
     {
         if(!p_) 
@@ -166,6 +171,7 @@ BOOST_PYTHON_MODULE(pynanoflann_any)
         .def("name",&kdtree_any_float_wrap::name)
         .def("printStats",&kdtree_any_float_wrap::printStats)
         .def("limits",&kdtree_any_float_wrap::limits)
+        .def("limitsx",&kdtree_any_float_wrap::limitsx)
 
         .def("list", &kdtree_any_float_wrap::list)
         .staticmethod("list")
