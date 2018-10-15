@@ -33,18 +33,22 @@ def ndarray2ptr(a,dt):
 	return v.value
 
 
-def doknnsearch(index,qp,k):
+def doknnsearch(index,qp,k,dims):
 	rt = np.int32 if index.indexsize() == 4  else np.int64
 	rb = np.zeros(k,dtype=rt)
 	qp = np.array(qp).astype(np.float32)
+	if qp.size != dims:
+		raise Exception("Expected size of array as "+dims+" got " + qp.size)
 	n = index.knnSearchx(k,ndarray2ptr(qp,np.float32),ndarray2ptr(rb,rt))
 	print("answer items",n,"over",k)
 	return rb[0:n]
 
-def doradiussearch(index,radius,qp,nres):
-	rt = np.int32 if index.indexsize() == 4  else np.int64
-	rb = np.zeros(nres,dtype=rt)
+def doradiussearch(index,radius,qp,nres,dims):
+	rt = np.int32 if index.indexsize() == 4 else np.int64
+	rb = np.zeros((1,nres),dtype=rt)
 	qp = np.array(qp).astype(np.float32)
+	if qp.size != dims:
+		raise Exception("Expected size of array as "+dims+" got " + qp.size)
 	n = index.radiusSearchx(radius,ndarray2ptr(qp,np.float32),nres,ndarray2ptr(rb,rt))
 	print("answer items",n,"over",nres)
 	return rb[0:n]
@@ -81,42 +85,42 @@ def main():
 			x.append(dict(name=bt,itemsize=t.itemsize(),itemalign=t.itemalign(),indexsize=t.indexsize(),selfname=t.name(),limits=l))
 
 		print(tabulate.tabulate(x))
-		return
-	print ("variants:",allt)
+	else:
+		print ("variants:",allt)
 
-	data = np.zeros((args.points,args.dims),dtype=np.float32)
-	print(data.flags['C_CONTIGUOUS'],data.dtype)
-	if args.dims == 4:
-		data[0,:] = (3,2,7,8)
-		data[1,:] = (3,2,8,9)
-	#print ("init",data)
-	for bt in allt:
-		t = xclass(bt)
-		#print (dir(t),t.__class__)
-		#print(t.name(),t.itemsize(),t.itemalign())
-		#print("")
-		#print("indexsize",t.indexsize())
-		#print ("build",data.shape[0])
-		#print(t.buildnp(data,10)) # data,rows,dim,maxleaf
-		print ("\n\nbt ------ " ,bt)
-		print("indexsize",t.indexsize())
-		print("building")
-		bb = t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],args.maxleaf,False)		
-		print("build result",bb)
-		print(" stats",t.printStats())
+		data = np.zeros((args.points,args.dims),dtype=np.float32)
+		print(data.flags['C_CONTIGUOUS'],data.dtype)
 		if args.dims == 4:
-			print (" knn:",doknnsearch(t,(3,2,7,8),10))
-			print (" rs:",doradiussearch(t,5,(3,2,7,8),10))
-
-		if args.float:
-			print ("\n\nbt ------ float -> " ,bt)
+			data[0,:] = (3,2,7,8)
+			data[1,:] = (3,2,8,9)
+		#print ("init",data)
+		for bt in allt:
+			t = xclass(bt)
+			#print (dir(t),t.__class__)
+			#print(t.name(),t.itemsize(),t.itemalign())
+			#print("")
+			#print("indexsize",t.indexsize())
+			#print ("build",data.shape[0])
+			#print(t.buildnp(data,10)) # data,rows,dim,maxleaf
+			print ("\n\nbt ------ " ,bt)
+			print("indexsize",t.indexsize())
 			print("building")
-			bb = t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],args.maxleaf,True)		
+			bb = t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],args.maxleaf,False)		
 			print("build result",bb)
-			print(" ",t.printStats())
+			print(" stats",t.printStats())
 			if args.dims == 4:
-				print (" ",doknnsearch(t,(3,2,7,8),10))
-				print (" ",doradiussearch(t,5,(3,2,7,8),10))
+				print (" knn:",doknnsearch(t,(3,2,7,8),10,args.dims))
+				print (" rs:",doradiussearch(t,5,(3,2,7,8),10,args.dims))
+
+			if args.float:
+				print ("\n\nbt ------ float -> " ,bt)
+				print("building")
+				bb = t.buildx(ndarray2ptr(data,np.float32),data.shape[0],data.shape[1],args.maxleaf,True)		
+				print("build result",bb)
+				print(" ",t.printStats())
+				if args.dims == 4:
+					print (" ",doknnsearch(t,(3,2,7,8),10,args.dims))
+					print (" ",doradiussearch(t,5,(3,2,7,8),10,args.dims))
 
 if __name__ == '__main__':
 	main()

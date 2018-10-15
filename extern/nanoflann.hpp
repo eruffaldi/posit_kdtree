@@ -93,7 +93,7 @@ struct has_resize<T, decltype((void)std::declval<T>().resize(1), 0)>
 template <typename T, typename = int> struct has_assign : std::false_type {};
 
 template <typename T>
-struct has_assign<T, decltype((void)std::declval<T>().assign(1, 0), 0)>
+struct has_assign<T, decltype((void)std::declval<T>().assign(1, typename T::value_type(0)), 0)>
     : std::true_type {};
 
 /**

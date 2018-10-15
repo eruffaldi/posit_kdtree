@@ -19,13 +19,13 @@ public:
     {
         if(!p_)
             std::cerr << "kdtree_any_float_wrap: not found " << name << std::endl;
-        //else
-        //  std::cerr << "kdtree_any_float_wrap: init " << name << " " << p_->name()<< std::endl;
+        else
+            std::cerr << "kdtree_any_float_wrap: init " << name << " " << p_->name()<< std::endl;
     }
 
-    ~kdtree_any_float_wrap()
+    virtual ~kdtree_any_float_wrap()
     {
-        //std::cerr << "kdtree_any_float_wrap: dtor" << std::endl;
+        std::cerr << "kdtree_any_float_wrap: dtor " << this << std::endl;
         delete p_;
     }   
 
@@ -44,10 +44,11 @@ public:
 
     bool build(const float* pdata, int rows, int dim, int maxleaf, bool fromfloatree)
     {
-        if(!p_) 
+        if(p_ && (!pdata || rows < 0 || dim < 0 || maxleaf <= 0))
             return false;
         else
         {
+            dim_ = dim;
             /*
             for(int i = 0; i < rows; i++)
             {
@@ -69,45 +70,48 @@ public:
     void printStats() const
     {
         if(!p_)
-            std::cout<<"not assigned\n";
+        {
+            std::cerr << "not assigned\n";
+        }
         else
         {
             p_->printStats();
         }
     }
 
-    int knnSearch(int K, const float* point, kdtree_any_float::IndexType * output) const 
+    int knnSearch(int num_results, const float* point, kdtree_any_float::IndexType * output) const 
     {
-        if(!p_) 
+        if(!p_ || !point || !output || num_results < 1) 
             return 0;
         else
-            return p_->knnSearch(K,point,output);
+        {
+            return p_->knnSearch(num_results,point,output);
+        }
     }
 
-    int knnSearchx(int K, std::intptr_t  point, std::intptr_t output) const 
+    int knnSearchx(int num_results, std::intptr_t  point, std::intptr_t output) const 
     {
-        return knnSearch(K,reinterpret_cast<const float*>(point),reinterpret_cast<kdtree_any_float::IndexType*>(output));
+        return knnSearch(num_results,reinterpret_cast<const float*>(point),reinterpret_cast<kdtree_any_float::IndexType*>(output));
     }
 
     int radiusSearch(float search_radius, const float * point,  int num_results, kdtree_any_float::IndexType * output) const 
     {
-        if(!p_) 
+        if(!p_ || !point || !output || search_radius <= 0 || num_results < 1) 
             return 0;
         else
+        {
             return p_->radiusSearch(search_radius,point,num_results,output);
+        }
     }
 
     int radiusSearchx(float search_radius, std::intptr_t point,  int num_results, std::intptr_t output) const 
     {
-        if(!p_) 
-            return 0;
-        else
-            return radiusSearch(search_radius,reinterpret_cast<const float*>(point),num_results,reinterpret_cast<kdtree_any_float::IndexType*>(output));
+        return radiusSearch(search_radius,reinterpret_cast<const float*>(point),num_results,reinterpret_cast<kdtree_any_float::IndexType*>(output));
     }
 
     int limitsx(std::intptr_t q)
     {
-        return limits(reinterpret_cast<double*>(q));
+        return !q ? 0 : limits(reinterpret_cast<double*>(q));
     }
 
     int limits(double q[3])
@@ -152,7 +156,8 @@ public:
         return r;
     }
 
-    kdtree_any_float * p_;
+    int dim_ = 0;
+    kdtree_any_float * p_ = 0;
 };
 
 BOOST_PYTHON_MODULE(pynanoflann_any)

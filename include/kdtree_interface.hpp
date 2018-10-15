@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 #include <memory>
+#include <iostream>
 
 // TODO better name for init
 // TODO add save load tree
@@ -11,7 +12,7 @@ class kdtree_any_float
 public:
 	using IndexType = size_t;
 	
-     virtual ~kdtree_any_float() {};
+     virtual ~kdtree_any_float() { std::cerr << "DESTROYED kdtree_any_float " << this << std::endl; };
 
      virtual int itemsize() const = 0; // name of type
 
@@ -19,7 +20,7 @@ public:
 
      virtual std::string name() const = 0; // name of type
 
-     /// initializes the tree using float data rows x dim 
+     /// iniializes the tree using float data rows x dim 
      virtual bool initFromFloatTree(const float * data, int rows, int dim, int maxleaf) = 0;
 
      /// initializes the tree using float data rows x dim 

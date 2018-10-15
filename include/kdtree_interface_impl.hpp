@@ -116,10 +116,10 @@ struct Angular_Adaptor
 template <typename T, typename IndexType>
 struct NDDataHolder
 {
-	int stride,rows,dim;
+	int stride,rows,dims;
 	std::vector<T>  pts; // matrix
 
-	NDDataHolder(int arows, int adim, int astride): rows(arows),pts(arows*astride),dim(adim),stride(astride)
+	NDDataHolder(int arows, int adims, int astride): rows(arows),pts(arows*astride),dims(adims),stride(astride)
 	{
 	}
 
@@ -130,9 +130,9 @@ struct NDDataHolder
 	// Returns the dim'th component of the idx'th point in the class:
 	// Since this is inlined and the "dim" argument is typically an immediate value, the
 	//  "if/else's" are actually solved at compile time.
-	inline T kdtree_get_pt(const IndexType idx, int xdim) const
+	inline T kdtree_get_pt(const IndexType irow, int idim) const
 	{
-		return pts[idx*stride+xdim];
+		return irow >= rows || idim < 0 || idim >= dims ? T() : pts[irow*stride+idim];
 	}
 
 	// Optional bounding-box computation: return false to default to a standard bbox computation loop.
@@ -164,6 +164,13 @@ class kdtree_any_float_impl:  public kdtree_any_float
 {
 public:
 	using num_t = T;
+
+	/*
+	typename Distance, 
+	class DatasetAdaptor, 
+	int DIM = -1,
+    typename IndexType = size_t
+    */
 
 	// construct a kd-tree index:
 	typedef nanoflann::KDTreeSingleIndexAdaptor<
@@ -205,11 +212,15 @@ public:
 
      virtual bool initFromFloatTree(const float * data, int rows, int dim, int maxleaf) 
      {
+     	if(!data || rows < 0 || dim <= 0)
+     		return false;
      	if(maxleaf <= 0)
      		maxleaf = 1;
      	dim_ = dim;
      	cloud_f = std::make_shared<NDDataHolder<float,IndexType>> (rows,dim,dim);
      	cloud = std::make_shared<NDDataHolder<num_t,IndexType> > (rows,dim,dim);
+     	index.reset();
+     	index_f.reset();
      	if(!cloud_f || !cloud)
      	{
      		return false;
@@ -226,9 +237,14 @@ public:
 
      virtual bool init(const float * data, int rows, int dim, int maxleaf) 
      {
+     	if(!data || rows < 0 || dim <= 0)
+     		return false;
      	if(maxleaf <= 0)
      		maxleaf = 1;
      	dim_ = dim;
+     	cloud_f.reset();
+     	index_f.reset();
+     	index.reset();
      	cloud = std::make_shared<NDDataHolder<num_t,IndexType>> (rows,dim,dim);
      	if(!cloud)
      	{
@@ -301,16 +317,15 @@ public:
      }
 
 
-     virtual int knnSearch(int K, const float * query_point_f,IndexType * output)  const
+     virtual int knnSearch(int num_results, const float * query_point_f,IndexType * output)  const
      {
-     	if(!index)
+     	if(!index || num_results < 1 || query_point_f == 0 || output == 0)
      		return 0;
-     	auto num_results = K;
 		std::vector<num_t> query_point(dim_);
 		castcopy(query_point_f,query_point_f+dim_,query_point.begin());
 
 		// is necessary out_dist_sqr ?
-		std::vector<num_t> out_dist_sqr(K);
+		std::vector<num_t> out_dist_sqr(num_results);
 		num_results = index->knnSearch(&query_point[0], num_results, output, &out_dist_sqr[0]);
 		//std::cout<<"resulted " << num_results << " for " << K << " first " << output[0] << " then " << output[1] << std::endl;
 		//castcopy(ret_index.begin(),ret_index.begin()+num_results,output);
@@ -319,7 +334,7 @@ public:
 
      virtual int radiusSearch(float asearch_radius, const float * query_point_f,  int num_results, IndexType * output)  const
      {
-     	if(!index)
+     	if(!index || num_results < 1 || query_point_f == 0 || output == 0 || !(asearch_radius > 0))
      		return 0;
 		const num_t search_radius = static_cast<num_t>(asearch_radius);
 		std::vector<std::pair<IndexType,num_t> >   ret_matches;
