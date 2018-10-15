@@ -1,5 +1,5 @@
 --- nanoflann.hpp.orig	2018-10-12 17:26:30.000000000 +0200
-+++ nanoflann.hpp	2018-10-15 14:27:55.000000000 +0200
++++ nanoflann.hpp	2018-10-15 14:35:06.000000000 +0200
 @@ -93,7 +93,7 @@
  template <typename T, typename = int> struct has_assign : std::false_type {};
  
@@ -9,6 +9,15 @@
      : std::true_type {};
  
  /**
+@@ -348,7 +348,7 @@
+           std::abs(a[3] - data_source.kdtree_get_pt(b_idx, d++));
+       result += diff0 + diff1 + diff2 + diff3;
+       a += 4;
+-      if ((worst_dist > 0) && (result > worst_dist)) {
++      if ((worst_dist > DistanceType(0)) && (result > worst_dist)) {
+         return result;
+       }
+     }
 @@ -381,7 +381,7 @@
    L2_Adaptor(const DataSource &_data_source) : data_source(_data_source) {}
  
@@ -125,6 +134,15 @@
      /* If this is a leaf node, then do check and return. */
      if ((node->child1 == NULL) && (node->child2 == NULL)) {
        // count_leaf += (node->lr.right-node->lr.left);  // Removed since was
+@@ -1730,7 +1731,7 @@
+     NodePtr bestChild;
+     NodePtr otherChild;
+     DistanceType cut_dist;
+-    if ((diff1 + diff2) < 0) {
++    if ((diff1 + diff2) < DistanceType(0)) {
+       bestChild = node->child1;
+       otherChild = node->child2;
+       cut_dist = distance.accum_dist(val, node->node_type.sub.divhigh, idx);
 @@ -2036,4 +2037,4 @@
  /** @} */ // end of grouping
  } // namespace nanoflann

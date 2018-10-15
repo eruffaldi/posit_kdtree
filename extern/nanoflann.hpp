@@ -348,7 +348,7 @@ struct L1_Adaptor {
           std::abs(a[3] - data_source.kdtree_get_pt(b_idx, d++));
       result += diff0 + diff1 + diff2 + diff3;
       a += 4;
-      if ((worst_dist > 0) && (result > worst_dist)) {
+      if ((worst_dist > DistanceType(0)) && (result > worst_dist)) {
         return result;
       }
     }
@@ -1731,7 +1731,7 @@ public:
     NodePtr bestChild;
     NodePtr otherChild;
     DistanceType cut_dist;
-    if ((diff1 + diff2) < 0) {
+    if ((diff1 + diff2) < DistanceType(0)) {
       bestChild = node->child1;
       otherChild = node->child2;
       cut_dist = distance.accum_dist(val, node->node_type.sub.divhigh, idx);
