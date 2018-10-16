@@ -1,35 +1,34 @@
 #pragma once
 
 
- template <class D, class DN, class SN>
- void castcopytree(D*d, DN&dn, const SN&sn)
+ template <class D, class SND>
+ void castcopytree(D*d, typename D::Node* & dn, const  SND* sn)
  {
 	using DT = typename D::DistanceType;
 	if(sn->child1 != 0 && sn->child2 != 0) // is_leaf
 	{
-		const auto & smn = *sn;
 		auto *mn = d->pool.template allocate<typename D::Node>();
-		mn->node_type.sub.divfeat = smn.node_type.sub.divfeat;
-		mn->node_type.sub.divlow = DT(smn.node_type.sub.divlow); // casting
-		mn->node_type.sub.divhigh = DT(smn.node_type.sub.divhigh); // casting
-		dn = mn;
-		if(mn->child1)
-			castcopytree(d, mn->child1, smn.child1);
+		mn->node_type.sub.divfeat = sn->node_type.sub.divfeat;
+		mn->node_type.sub.divlow = DT(sn->node_type.sub.divlow); // casting
+		mn->node_type.sub.divhigh = DT(sn->node_type.sub.divhigh); // casting
+		if(sn->child1)
+			castcopytree(d, mn->child1, sn->child1);
 		else
 			mn->child1 = 0;
-		if(mn->child2)
-			castcopytree(d, mn->child2, smn.child2);
+		if(sn->child2)
+			castcopytree(d, mn->child2, sn->child2);
 		else
 			mn->child2 = 0;
+		dn = mn;
 	}
 	else
 	{
 		int div = sn->node_type.sub.divfeat;
-		const auto & sln = *sn;
 		auto *ln = d->pool.template allocate<typename D::Node >();
+		ln->child1 = ln->child2 = NULL;
+		ln->node_type.lr.left = sn->node_type.lr.left;
+		ln->node_type.lr.right = sn->node_type.lr.right;
 		dn = ln;
-		ln->node_type.lr.left = sln.node_type.lr.left;
-		ln->node_type.lr.right = sln.node_type.lr.right;
 	}     	
  }
 
