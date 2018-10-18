@@ -121,6 +121,7 @@ struct NDDataHolder
 
 	NDDataHolder(int arows, int adims, int astride): rows(arows),pts(arows*astride),dims(adims),stride(astride)
 	{
+		std::cout << "allocating " << rows << " " << dims << "  to " << pts.size() << " " << typeid(T).name() << std::endl;
 	}
 
 
@@ -151,11 +152,11 @@ struct kdd_factory_t {
 /**
  * std::copy but forcing a cast to decltype of *d
  */
-template <class It, class Dst>
-Dst castcopy(It f, It e, Dst d)
+template <class SrcIt, class DstIt>
+DstIt castcopy(SrcIt f, SrcIt e, DstIt d)
 {
-	for(; f != e; f++, d++)
-		*d = (decltype(*d))*f;
+	for(; f != e; )
+		*d++ = typename std::iterator_traits<DstIt>::value_type(*f++);
 	return d;
 }
 
@@ -227,12 +228,30 @@ public:
      	}
      	else
      	{
-	     	castcopy(data,data+rows*dim,cloud->pts.begin());
-	     	castcopy(data,data+rows*dim,cloud_f->pts.begin());
+	     	castcopy(data,data+rows*dim,&cloud->pts[0]);
+	     	castcopy(data,data+rows*dim,&cloud_f->pts[0]);
 	     	index_f = std::make_shared<my_kd_tree_float_t>(dim_, *cloud_f, nanoflann::KDTreeSingleIndexAdaptorParams(maxleaf /* max leaf */) );
 	     	index = std::make_shared<my_kd_tree_t>(dim_, *cloud, nanoflann::KDTreeSingleIndexAdaptorParams(maxleaf /* max leaf */) );
 	     	return (bool)index_f && (bool)index;
 	     }
+     }
+
+     virtual void dumpData()
+     {
+     	if(!cloud)
+     	{
+     		std::cout << "missing cloud\n";
+     		return;
+     	}
+     	int s = cloud->stride;
+     	std::cout << "<<dumping " << typeid(*this).name() << " rows " << cloud->rows << " dims " << cloud->dims << std::endl;
+     	for(int i = 0; i < cloud->rows; i++)
+     	{
+     		for(int j = 0; j < cloud->dims; j++)
+     			std::cout << cloud->pts[i*s+j] << " ";
+     		std::cout << std::endl;
+     	}
+     	std::cout << "dumping>>\n";
      }
 
      virtual bool init(const float * data, int rows, int dim, int maxleaf) 
@@ -252,7 +271,7 @@ public:
      	}
      	else
      	{
-	     	castcopy(data,data+rows*dim,cloud->pts.begin());
+	     	castcopy(data,data+rows*dim,&cloud->pts[0]);
 	     	index = std::make_shared<my_kd_tree_t>(dim_, *cloud, nanoflann::KDTreeSingleIndexAdaptorParams(maxleaf /* max leaf */) );
 	     	return (bool)index;
 	     }
@@ -324,12 +343,8 @@ public:
 		std::vector<num_t> query_point(dim_);
 		castcopy(query_point_f,query_point_f+dim_,query_point.begin());
 
-		// is necessary out_dist_sqr ?
 		std::vector<num_t> out_dist_sqr(num_results);
-		num_results = index->knnSearch(&query_point[0], num_results, output, &out_dist_sqr[0]);
-		//std::cout<<"resulted " << num_results << " for " << K << " first " << output[0] << " then " << output[1] << std::endl;
-		//castcopy(ret_index.begin(),ret_index.begin()+num_results,output);
-		return num_results;
+		return index->knnSearch(&query_point[0], num_results, output, &out_dist_sqr[0]);
      }
 
      virtual int radiusSearch(float asearch_radius, const float * query_point_f,  int num_results, IndexType * output)  const
@@ -355,7 +370,7 @@ public:
      std::shared_ptr<my_kd_tree_t> index;
      std::shared_ptr<my_kd_tree_float_t> index_f;
 	 std::shared_ptr<NDDataHolder<float,IndexType> > cloud_f;
-     int dim_;
+     int dim_ = 0;
 };
 
 #if 0

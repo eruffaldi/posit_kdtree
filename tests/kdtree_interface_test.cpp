@@ -21,6 +21,14 @@ std::vector<T> loadbinary(std::string f)
         return r;
 }
 
+double distanceL2(float * a, float * b, int n)
+{
+    double r = 0;
+    for(int i = 0; i < n; i++)
+        r += (a[i]-b[i])*(a[i]-b[i]);
+    return sqrt(r);
+}
+
 template <class T>
 void savebinary(std::string f, T * p, int n)
 {
@@ -41,6 +49,7 @@ int main(int argc, char const *argv[])
     args::Command aRun(commands, "run","run test");
     args::Command aGenTrain(commands, "gentrain","gen train");
     args::Command aGenTest(commands, "gentest","gen test");
+    args::Command aDump(commands, "dumpfile","dump file");
     args::Group arguments(parser, "arguments", args::Group::Validators::DontCare, args::Options::Global);
     args::ValueFlag<std::string> aInput(arguments, "input", "The input file with rows NxD. Float binary file", {'i'});
     args::ValueFlag<std::string> aTestfile(arguments, "test", "The test file with rows MxD. Float binary file (TODO JSON)", {'t'});
@@ -53,6 +62,7 @@ int main(int argc, char const *argv[])
     //args::ValueFlag<float> aEPS(parser, "e", "The epsilon for search", {'e','eps'},0);
     args::ValueFlagList<std::string> aTypes(arguments, "types", "The types flag", {'T'});
     args::ValueFlag<bool> abuildfloat(arguments, "buildfloat", "Build From Float Tree", {'f', "float"},false);
+    args::ValueFlag<bool> adumpit(arguments, "dumpit", "Dumps data from free", {'D', "dumpit"},false);
     args::ValueFlag<int> aitems(arguments,"items","Generate items",{"c","count"},1000);
     args::ValueFlag<float> amaxrange(arguments,"max_range","Max Range",{"R","maxrange"},1.0);
     args::ValueFlag<float> aminrange(arguments,"min_range","Min Range",{"r","minrange"},0.0);
@@ -84,7 +94,25 @@ int main(int argc, char const *argv[])
         std::cerr << parser;
         return 1;
     }
-    if(args::get(aList))
+    if(args::get(aDump))
+    {
+        auto si = loadbinary<float>(args::get(aInput));
+        const int dim = args::get(aD);
+        if(dim == 0)
+        {
+            std::cerr << "specify dim\n";
+            return 0;
+        }
+        for(int i = 0; i < si.size()/dim; i++)
+        {
+            float * pme = &si[i*dim];
+            for(int j = 0; j < dim; j++)
+                std::cout << pme[j] << " " ;
+            std::cout << std::endl;
+        }
+
+    }
+    else if(args::get(aList))
     {
     	for(auto & a: kdtree_any_float_list())
     	{
@@ -185,7 +213,12 @@ int main(int argc, char const *argv[])
                 p->initFromFloatTree(&si[0],si.size()/dim,dim,args::get(aMaxLeaf));
             else
                 p->init(&si[0],si.size()/dim,dim,args::get(aMaxLeaf));
-            std::cerr << "inited" << std::endl;
+            std::cerr << "training data inited" << std::endl;
+            if(args::get(adumpit))
+            {
+                p->dumpData();
+                continue;
+            }
             // measure time
             auto beginB = std::chrono::high_resolution_clock::now();
             bool b = p->build();
@@ -204,34 +237,66 @@ int main(int argc, char const *argv[])
             {
                 std::cerr << "K search" << std::endl;
 
-                std::vector<size_t> output(args::get(aK));
-                std::vector<picojson::value> jps;
-                for(int i = 0; i < jps.size()/dim; i++)
+                std::vector<kdtree_any_float::IndexType> output(args::get(aK));
+                std::vector<picojson::value> jps; // for each point
+                jtestmap["type"] = picojson::value(t);
+                jtestmap["K"] = picojson::value((double)args::get(aK));
+                // for every vector                
+                std::cout << "evaluating " << st.size()/dim << " points" << std::endl;
+                for(int i = 0; i < st.size()/dim; i++)
                 {
-                    //jps.push_back(picojson());
-                    picojson::value & jp = jps.back();
-                    int n = p->knnSearch(args::get(aK),&st[i*dim],&output[0]);
-                    jtestmap["type"] = picojson::value(t);
-                    // emit
-                    //picojson jp
+                    float * pme = &st[i*dim];
+                    int n = p->knnSearch(args::get(aK),pme,&output[0]);
+                    std::vector<picojson::value> jpi(n);
+                    std::vector<picojson::value> jpd(n);
+                    picojson::object ri;
+                    ri["i"] = picojson::value((double)i);
+                    ri["n"] = picojson::value((double)n);
+                    for(int q = 0; q < n; q++)
+                    {
+                        jpd[q] = picojson::value(distanceL2(pme,&st[output[q]*dim],dim));
+                        jpi[q] = picojson::value((double)output[q]);
+                    }
+                    ri["indices"] = picojson::value(jpi);
+                    //ri["distancesL2"] = picojson::value(jpd);
+                    jps.push_back(picojson::value(ri));
                 }
+                jtestmap["results"] = picojson::value(jps);
             }
             else if(args::get(aS) > 0) // r search
             {
                 std::cerr << "R search" << std::endl;
-                std::vector<size_t> output(args::get(aS));
+                std::vector<kdtree_any_float::IndexType> output(args::get(aS));
+                std::vector<picojson::value> jps; // for each point
+                jtestmap["type"] = picojson::value(t);
+                jtestmap["radius"] = picojson::value((double)args::get(aR));
+                std::cout << "evaluating " << st.size()/dim << " points" << std::endl;
                 for(int i = 0; i < st.size()/dim; i++)
                 {
-                    int n = p->radiusSearch(args::get(aR),&st[i*dim],output.size(),&output[0]);
-                    // emit
+                    float * pme = &st[i*dim];
+                    int n = p->radiusSearch(args::get(aR),pme,output.size(),&output[0]);
+                    std::vector<picojson::value> jpi(n);
+                    std::vector<picojson::value> jpd(n);
+                    picojson::object ri;
+                    ri["i"] = picojson::value((double)i);
+                    ri["n"] = picojson::value((double)n);
+                    for(int q = 0; q < n; q++)
+                    {
+                        jpd[q] = picojson::value(distanceL2(pme,&st[output[q]*dim],dim));
+                        jpi[q] = picojson::value((double)output[q]);
+                    }
+                    ri["indices"] = picojson::value(jpi);
+                    //ri["distancesL2"] = picojson::value(jpd);
+                    jps.push_back(picojson::value(ri));
                 }
+                jtestmap["results"] = picojson::value(jps);
             }
         }
         if(hasoutput)
         {
             std::cerr << "final output" << std::endl;
             picojson::value jroot(jtests);
-            std::string json = jroot.serialize();
+            std::string json = jroot.serialize(true);
             std::ofstream onf(args::get(aOutput),std::ios::binary);
             onf.write(json.c_str(),json.size());
         }

@@ -29,6 +29,8 @@ public:
      /// builds the tree based on the data provided with the init command
      virtual bool build() = 0;
 
+     virtual void dumpData() = 0;
+
      /// returns up to K neighbors of the point expressed in float and the index output
      virtual int knnSearch(int K, const float * point, IndexType * output) const = 0;
 
