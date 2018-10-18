@@ -1,8 +1,8 @@
 #!/bin/bash
 P=.
 $P/nanoflann_any_test list
-DIM=3
-KNN=5
+DIM=10
+KNN=12
 TREEPTS=1000
 TESTPTS=10
 #file is of floats
@@ -20,8 +20,10 @@ diff xT_xt_10_float.json xT_xt_10_double.json
 $P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T float -f 1 -o xT_xt_10_floatF.json
 $P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T double -f 1 -o xT_xt_10_doubleF.json
 diff xT_xt_10_floatF.json xT_xt_10_doubleF.json
+diff xT_xt_10_float.json xT_xt_10_doubleF.json
 
 #TODO FIXME
 #$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T float -f 1 -o xT_xt_10_floatF.json
 #$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T double -f 1 -o xT_xt_10_doubleF.json
 #diff xT_xt_10_floatF.json xT_xt_10_doubleF.json
+stty sane

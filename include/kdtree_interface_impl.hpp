@@ -254,6 +254,7 @@ public:
      	std::cout << "dumping>>\n";
      }
 
+
      virtual bool init(const float * data, int rows, int dim, int maxleaf) 
      {
      	if(!data || rows < 0 || dim <= 0)
@@ -320,7 +321,7 @@ public:
 		    index_f->computeBoundingBox(bb);
      		index_f->buildIndex();
      		castcopyindex(index_f.get(),index.get());     		
-     		return true;     		
+     		return true;
      	}
      	else if(index)
      	{

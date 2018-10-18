@@ -245,7 +245,7 @@ inline value::value(double n) : type_(number_type), u_() {
       isnan(n) || isinf(n)
 #endif
           ) {
-    throw std::overflow_error("");
+    //throw std::overflow_error("picojson overflow in value ctor");
   }
   u_.number_ = n;
 }

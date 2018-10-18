@@ -5,30 +5,23 @@
  void castcopytree(D*d, typename D::Node* & dn, const  SND* sn)
  {
 	using DT = typename D::DistanceType;
-	if(sn->child1 != 0 && sn->child2 != 0) // is_leaf
+	dn = d->pool.template allocate<typename D::Node >();
+	dn->child1 = dn->child2 = 0;
+
+	if(sn->child1 != 0 || sn->child2 != 0) // is_leaf
 	{
-		auto *mn = d->pool.template allocate<typename D::Node>();
-		mn->node_type.sub.divfeat = sn->node_type.sub.divfeat;
-		mn->node_type.sub.divlow = DT(sn->node_type.sub.divlow); // casting
-		mn->node_type.sub.divhigh = DT(sn->node_type.sub.divhigh); // casting
+		dn->node_type.sub.divfeat = sn->node_type.sub.divfeat;
+		dn->node_type.sub.divlow = DT(sn->node_type.sub.divlow); // casting
+		dn->node_type.sub.divhigh = DT(sn->node_type.sub.divhigh); // casting
 		if(sn->child1)
-			castcopytree(d, mn->child1, sn->child1);
-		else
-			mn->child1 = 0;
+			castcopytree(d, dn->child1, sn->child1);
 		if(sn->child2)
-			castcopytree(d, mn->child2, sn->child2);
-		else
-			mn->child2 = 0;
-		dn = mn;
+			castcopytree(d, dn->child2, sn->child2);
 	}
 	else
 	{
-		int div = sn->node_type.sub.divfeat;
-		auto *ln = d->pool.template allocate<typename D::Node >();
-		ln->child1 = ln->child2 = NULL;
-		ln->node_type.lr.left = sn->node_type.lr.left;
-		ln->node_type.lr.right = sn->node_type.lr.right;
-		dn = ln;
+		dn->node_type.lr.left = sn->node_type.lr.left;
+		dn->node_type.lr.right = sn->node_type.lr.right;
 	}     	
  }
 
@@ -38,9 +31,9 @@
 	typedef typename To::DistanceType DT;
 
 	index->m_size = index_f->m_size;
-	index->m_size_at_index_build = index->m_size;
+	index->m_size_at_index_build = index_f->m_size_at_index_build;
 	index->dim = index_f->dim;
-	index->root_bbox.resize(index_f->dim);
+	resize(index->root_bbox,index->dim);
 	const auto & sb = index_f->root_bbox ;
 	auto & db = index->root_bbox ;
 	for(int i = 0; i < index->dim; i++)
@@ -53,6 +46,7 @@
 	castcopytree(index,index->root_node,index_f->root_node);
  }
 
+/*
  template <class From, class To>
  void castcopyindexs(const From * index_f, To * index)
  {
@@ -72,3 +66,4 @@
 	index->vind = index_f->vind;
 	castcopytree(index,index->root_node,index_f->root_node);
  }
+ */

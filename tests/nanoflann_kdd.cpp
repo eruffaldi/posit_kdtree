@@ -111,7 +111,7 @@ void kdtree_demo(const PointCloud<num_t> & cloud, const char * targetsave, const
     auto begin = std::chrono::high_resolution_clock::now();
     if(ff)
     {
-    	castcopyindexs(ff,&index);
+    	castcopyindex(ff,&index);
     }
     else
 		index.buildIndex();

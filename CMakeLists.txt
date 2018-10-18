@@ -60,6 +60,6 @@ target_link_libraries(nanoflann_any ${QSL})
 set(QSL nanoflann_any)
 set(QS )
 
-add_executable(nanoflann_any_test extern/backward.cpp tests/kdtree_interface_test.cpp)
+add_executable(nanoflann_any_test  tests/kdtree_interface_test.cpp)
 target_link_libraries(nanoflann_any_test nanoflann_any)
 add_subdirectory(python)

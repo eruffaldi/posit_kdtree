@@ -24,9 +24,14 @@ std::vector<T> loadbinary(std::string f)
 double distanceL2(float * a, float * b, int n)
 {
     double r = 0;
+//    std::cout << "<<res\n";
     for(int i = 0; i < n; i++)
-        r += (a[i]-b[i])*(a[i]-b[i]);
-    return sqrt(r);
+    {
+  //      std::cout << " " << a[i] << " " << b[i] << std::endl;
+        r += fabs(a[i]-b[i]);//*(a[i]-b[i]);
+    }
+    //std::cout << "res>> " << r << std::endl;
+    return r;
 }
 
 template <class T>
@@ -254,11 +259,11 @@ int main(int argc, char const *argv[])
                     ri["n"] = picojson::value((double)n);
                     for(int q = 0; q < n; q++)
                     {
-                        jpd[q] = picojson::value(distanceL2(pme,&st[output[q]*dim],dim));
+                        jpd[q] = picojson::value(distanceL2(pme,&si[output[q]*dim],dim));
                         jpi[q] = picojson::value((double)output[q]);
                     }
                     ri["indices"] = picojson::value(jpi);
-                    //ri["distancesL2"] = picojson::value(jpd);
+                    ri["distancesL2"] = picojson::value(jpd);
                     jps.push_back(picojson::value(ri));
                 }
                 jtestmap["results"] = picojson::value(jps);
@@ -282,11 +287,11 @@ int main(int argc, char const *argv[])
                     ri["n"] = picojson::value((double)n);
                     for(int q = 0; q < n; q++)
                     {
-                        jpd[q] = picojson::value(distanceL2(pme,&st[output[q]*dim],dim));
+                        jpd[q] = picojson::value(distanceL2(pme,&si[output[q]*dim],dim));
                         jpi[q] = picojson::value((double)output[q]);
                     }
                     ri["indices"] = picojson::value(jpi);
-                    //ri["distancesL2"] = picojson::value(jpd);
+                    ri["distancesL2"] = picojson::value(jpd);
                     jps.push_back(picojson::value(ri));
                 }
                 jtestmap["results"] = picojson::value(jps);
