@@ -4,8 +4,8 @@
  kdd_factory_t softfloat_factories[] = {
 	/*{"posit10", FACTORY(posit10) },*/
 	// softfloat 16bit ... TODO make it tabulated
-	{"soft16", FACTORY(softfloat16) },
-	{"soft32", FACTORY(softfloat32) },
+	{"float16.soft", FACTORY(softfloat16) },
+	{"float32.soft", FACTORY(softfloat32) },
 	{""}
 };
 

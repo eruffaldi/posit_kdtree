@@ -4,7 +4,7 @@
  kdd_factory_t half_factories[] = {
 	/*{"posit10", FACTORY(posit10) },*/
 	// softfloat 16bit ... TODO make it tabulated
-	{"half", FACTORY(half_float::half) },
+	{"float16.half", FACTORY(half_float::half) },
 	{""}
 };
 

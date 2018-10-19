@@ -2,8 +2,8 @@
 
  kdd_factory_t native_factories[] = {
 	// native
-	{"float", FACTORY(float) } ,
-	{"double", FACTORY(double) } ,
+	{"float32.native", FACTORY(float) } ,
+	{"float64.native", FACTORY(double) } ,
 	//{"float_hamming", FACTORYH(float) } ,
 	{""}
 
