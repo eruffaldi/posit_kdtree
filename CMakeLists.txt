@@ -44,7 +44,7 @@ add_definitions(-DHASSGFIXEDPOINT)
 set(EXTRASRC ${EXTRASRC} ${PROJECT_SOURCE_DIR}/src/kdtree_interface_fixedpoint.cpp)
 endif()
 
-find_path(HALF_INCLUDE half.h)
+find_path(HALF_INCLUDE half.hpp)
 if(HALF_INCLUDE)
 message("WITH half")
 include_directories(${HALF_INCLUDE})
