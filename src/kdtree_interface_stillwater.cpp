@@ -16,6 +16,7 @@ Requires
 
 kdd_factory_t stillwater_factories[] = {
 	// tabulated
+	{"posit8_0.still", FACTORY(positsc8_0) } ,
 	{"posit16_1.still", FACTORY(positsc16_1) } ,
 	{"posit32_2.still", FACTORY(positsc32_2) } ,
 	{"" }

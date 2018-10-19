@@ -1,8 +1,9 @@
 #!/bin/bash
 P=.
 $P/nanoflann_any_test list
-DIM=10
+DIM="${DIM:-10}"
 KNN=12
+T2="${T2:-double}"
 TREEPTS=1000
 TESTPTS=10
 #file is of floats
@@ -13,14 +14,14 @@ $P/nanoflann_any_test dumpfile -i xTr.bin -d $DIM > xTr.bin.txt
 # using build from flosting tree
 #$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d 10 -k 10 -T float -f 1 -o xT_xt_10_float_float.json
 # using build from flosting ... not
-$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T float -o xT_xt_10_float.json
-$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T double -o xT_xt_10_double.json
-diff xT_xt_10_float.json xT_xt_10_double.json
+$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T float -o xT_xt_${DIM}_float.json
+$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T $T2 -o xT_xt_${DIM}_${T2}.json
+diff xT_xt_${DIM}_float.json xT_xt_${DIM}_${T2}.json
 
-$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T float -f 1 -o xT_xt_10_floatF.json
-$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T double -f 1 -o xT_xt_10_doubleF.json
-diff xT_xt_10_floatF.json xT_xt_10_doubleF.json
-diff xT_xt_10_float.json xT_xt_10_doubleF.json
+$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T float -f 1 -o xT_xt_${DIM}_floatF.json
+$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T double -f 1 -o xT_xt_${DIM}_${T2}F.json
+diff xT_xt_${DIM}_floatF.json xT_xt_${DIM}_${T2}F.json
+diff xT_xt_${DIM}_float.json xT_xt_${DIM}_${T2}F.json
 
 #TODO FIXME
 #$P/nanoflann_any_test run -i xTr.bin -t xTe.bin -d $DIM -k $KNN -T float -f 1 -o xT_xt_10_floatF.json
