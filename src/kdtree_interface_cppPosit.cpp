@@ -23,6 +23,14 @@ kdd_factory_t cppPosit_factories[] = {
 	{"posit16_1.cppf", FACTORYPOSITF(int16_t, 16, 1, float, false) },
 	{"posit32_2.cppf", FACTORYPOSITF(int32_t, 32, 2, double, false) },
 
+	{"posit8_0nan.cpp", FACTORYPOSIT(int8_t, 8, 1, uint32_t, true) },
+	{"posit16_1nan.cpp", FACTORYPOSIT(int16_t, 16, 1, uint32_t, true) },
+	{"posit32_2nan.cpp", FACTORYPOSIT(int32_t, 32, 2, uint64_t, true) },
+	
+	{"posit8_0nan.cppf", FACTORYPOSITF(int8_t, 8, 1, float, true) },
+	{"posit16_1nan.cppf", FACTORYPOSITF(int16_t, 16, 1, float, true) },
+	{"posit32_2nan.cppf", FACTORYPOSITF(int32_t, 32, 2, double, true) },
+
 	// po     sit
 	//{"posit16_2", FACTORYPOSIT(int16_t, 16, POSIT16_ES, uint32_t, false) },
 	//{"posit8_0.cpptab", FACTORYPOSIT(int8_t, 8, POSIT8_ES, uint32_t, false) },
