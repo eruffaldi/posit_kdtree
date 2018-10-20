@@ -41,7 +41,7 @@ public:
      virtual void printStats() const = 0;
 
      /// emits limits: min,max,eps
-     virtual void limits(double out[3]) const = 0;
+     virtual int limits(double *out, uint64_t *rout, int n) const = 0;
 
 };
 

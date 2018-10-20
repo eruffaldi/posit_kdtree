@@ -80,9 +80,12 @@ def main():
 		x=[]
 		for bt in allt:
 			t = xclass(bt)
-			l = np.array((0,0,0),dtype=np.float64)
-			t.limitsx(ndarray2ptr(l,np.float64))
-			x.append(dict(name=bt,itemsize=t.itemsize(),itemalign=t.itemalign(),indexsize=t.indexsize(),selfname=t.name(),limits=l))
+			np = POINTER(c_int)()
+			n = t.limitssize()
+			ld = np.zeros((n,),dtype=np.float64)
+			lr = np.zeros((n,),dtype=np.uint64)
+			t.limitsx(ndarray2ptr(ld,np.float64),ndarray2ptr(lr,np.uint64),n)
+			x.append(dict(name=bt,itemsize=t.itemsize(),itemalign=t.itemalign(),indexsize=t.indexsize(),selfname=t.name(),limitsd=ld,limitsr=lr))
 
 		print(tabulate.tabulate(x))
 	else:

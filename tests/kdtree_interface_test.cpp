@@ -126,28 +126,36 @@ int main(int argc, char const *argv[])
     }
     else if(args::get(aLimits))
     {
+        std::cout << "type\tmax\tmin\tepsilon\n";
         for(auto & t: args::get(aTypes))
         {
-            double q[3] = {0,0,0};
             auto p = kdtree_any_float_create(t.c_str());
             if(p)
             {
-                p->limits(q);
+                int n = p->limits(0,0,0);
+                std::vector<double> qd(n);
+                std::vector<uint64_t> qr(n);
+                p->limits(&qd[0],&qr[0],n);
+                std::cout << t << "\t" << qd[0] << "\t" << qd[1] << "\t" << qd[2] << std::endl; 
             }
-            std::cout << t << "\t" << q[0] << "\t" << q[1] << "\t" << q[2] << std::endl; 
+            else
+                std::cout << t << "\tunk\tunk\tunk" << std::endl; 
         }
     }
     else if(args::get(aAllLimits))
     {
+        std::cout << "atype\tmax\tmin\tepsilon\n";
         for(auto & t: kdtree_any_float_list())
         {
-            double q[3] = {0,0,0};
             auto p = kdtree_any_float_create(t.c_str());
             if(p)
             {
-                p->limits(q);
+                int n = p->limits(0,0,0);
+                std::vector<double> qd(n);
+                std::vector<uint64_t> qr(n);
+                p->limits(&qd[0],&qr[0],n);
+                std::cout << t << "\t" << qd[0] << "\t" << qd[1] << "\t" << qd[2] << std::endl; 
             }
-            std::cout << t << "\t" << q[0] << "\t" << q[1] << "\t" << q[2] << std::endl; 
         }
     }    
     else if(args::get(aGenTrain) || args::get(aGenTest))

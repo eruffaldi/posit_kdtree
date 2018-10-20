@@ -190,11 +190,22 @@ public:
 
      }
 
-     virtual void limits(double out[3]) const 
+     virtual int limits(double *out, uint64_t *rout, int n) const 
      {
-     	out[0] = (double)std::numeric_limits<T>::max();
-     	out[1] = (double)std::numeric_limits<T>::min();
-     	out[2] = (double)std::numeric_limits<T>::epsilon();
+     	const int r = 5;
+     	if(n != r || !out || !rout)
+     		return r;
+     	T v;
+     	int i = 0;
+     	v = std::numeric_limits<T>::max();
+     	out[i++] = (double)v;
+     	v = std::numeric_limits<T>::min();
+     	out[i++] = (double)v;
+     	v = std::numeric_limits<T>::epsilon();
+     	out[i++] = (double)v;
+     	for(int i = 0; i < n; i++)
+     		rout[i] = 0;
+     	return r;
      }
 
      virtual void printStats() const
