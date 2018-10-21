@@ -80,7 +80,6 @@ def main():
 		x=[]
 		for bt in allt:
 			t = xclass(bt)
-			np = POINTER(c_int)()
 			n = t.limitssize()
 			ld = np.zeros((n,),dtype=np.float64)
 			lr = np.zeros((n,),dtype=np.uint64)
@@ -90,7 +89,7 @@ def main():
 		print(tabulate.tabulate(x))
 	else:
 		print ("variants:",allt)
-
+		print("np",np)
 		data = np.zeros((args.points,args.dims),dtype=np.float32)
 		print(data.flags['C_CONTIGUOUS'],data.dtype)
 		if args.dims == 4:
