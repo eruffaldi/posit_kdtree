@@ -12,7 +12,7 @@ Requires
 kdd_factory_t softposit_factories[] = {
 	// tabulated
 	{"posit8_0.soft", FACTORY(posit8) } ,
-	{"posit16_0.soft", FACTORY(posit16) } ,
+	{"posit16_1.soft", FACTORY(posit16) } ,
 	{"posit32_2.soft", FACTORY(posit32) } ,
 	{"" }
 	/*{"posit10", FACTORY(posit10) },*/
