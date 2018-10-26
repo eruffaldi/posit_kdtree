@@ -218,12 +218,12 @@ int main(int argc, char * argv[])
 	// Randomize Seed
 	srand(time(NULL));
 
-	using P =Posit<int16_t,12,2,uint32_t,false> ;
+	using P =Posit<int16_t,12,2,uint32_t,PositSpec::WithInf> ;
 
 	radius=args::get(sradius);
 	nolist = !args::get(alist);
 
-	using p16=Posit<int16_t,8,1,uint32_t,false>;
+	using p16=Posit<int16_t,8,1,uint32_t,PositSpec::WithInf>;
 	PointCloud<float> cloudf;
 	PointCloud<double> cloudd;
 	PointCloud<P> cloudp;
