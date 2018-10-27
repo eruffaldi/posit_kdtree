@@ -18,6 +18,7 @@ kdd_factory_t cppPosit_factories[] = {
 	{"posit8_0.cpp", FACTORYPOSIT(int8_t, 8, 1, uint32_t,PositSpec::WithInf) },
 	{"posit16_1.cpp", FACTORYPOSIT(int16_t, 16, 1, uint32_t,PositSpec::WithInf) },
 	{"posit16_2.cpp", FACTORYPOSIT(int16_t, 16, 2, uint32_t,PositSpec::WithInf) },
+	{"posit16_3.cpp", FACTORYPOSIT(int16_t, 16, 3, uint32_t,PositSpec::WithInf) },
 	{"posit32_2.cpp", FACTORYPOSIT(int32_t, 32, 2, uint64_t,PositSpec::WithInf) },
 	
 	{"posit8_0.cppf", FACTORYPOSITF(int8_t, 8, 1, float,PositSpec::WithInf) },
@@ -27,6 +28,7 @@ kdd_factory_t cppPosit_factories[] = {
 	{"posit8_0ni.cpp", FACTORYPOSIT(int8_t, 8, 1, uint32_t,PositSpec::WithNanInf) },
 	{"posit16_1ni.cpp", FACTORYPOSIT(int16_t, 16, 1, uint32_t,PositSpec::WithNanInf) },
 	{"posit16_2ni.cpp", FACTORYPOSIT(int16_t, 16, 2, uint32_t,PositSpec::WithNanInf) },
+	{"posit16_3ni.cpp", FACTORYPOSIT(int16_t, 16, 3, uint32_t,PositSpec::WithNanInf) },
 	{"posit32_2ni.cpp", FACTORYPOSIT(int32_t, 32, 2, uint64_t,PositSpec::WithNanInf) },
 	
 	{"posit8_0ni.cppf", FACTORYPOSITF(int8_t, 8, 1, float,PositSpec::WithNanInf) },
