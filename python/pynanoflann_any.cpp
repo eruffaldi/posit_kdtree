@@ -89,6 +89,11 @@ public:
         return knnSearchN(1,num_results,reinterpret_cast<const float*>(point),reinterpret_cast<kdtree_any_float::IndexType*>(output));
     }
 
+    int knnSearchxN(int npoints, int num_results, std::intptr_t  point, std::intptr_t output) const 
+    {
+        return knnSearchN(npoints, num_results,reinterpret_cast<const float*>(point),reinterpret_cast<kdtree_any_float::IndexType*>(output));
+    }
+
     int knnSearchN(int npoints, int num_results, const float* point, kdtree_any_float::IndexType * output) const 
     {
         if(!p_ || !point || !output || num_results < 1 || npoints < 0) 
@@ -97,11 +102,6 @@ public:
         {
             return p_->knnSearchN(npoints, num_results,point,output);
         }
-    }
-
-    int knnSearchxN(int npoints, int num_results, std::intptr_t  point, std::intptr_t output) const 
-    {
-        return knnSearchN(npoints, num_results,reinterpret_cast<const float*>(point),reinterpret_cast<kdtree_any_float::IndexType*>(output));
     }
 
     int radiusSearch(float search_radius, const float * point,  int num_results, kdtree_any_float::IndexType * output) const 

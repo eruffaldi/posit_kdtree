@@ -354,18 +354,18 @@ public:
      }
 
 
-     virtual int knnSearchN(int N, int num_results, const float * query_point_f,IndexType * output)  const
+     virtual int knnSearchN(int N, int num_results, const float * query_points_f,IndexType * output)  const
      {
-     	if(!index || num_results < 1 || query_point_f == 0 || output == 0 || N <= 0)
+     	if(!index || num_results < 1 || query_points_f == 0 || output == 0 || N <= 0)
      		return 0;
-		std::vector<num_t> query_point(dim_*N);
-		castcopy(query_point_f,query_point_f+N*dim_,query_point.begin());
+		std::vector<num_t> query_points(dim_*N);
+		castcopy(query_points_f,query_points_f+N*dim_,query_points.begin());
 
 		bool bolly = false;
 		std::vector<num_t> out_dist_sqr(num_results);
-		for(int i = 0, j = 0; i < N; i++, j+=dim_)
+		for(int i = 0, j = 0, jr = 0; i < N; i++, j += dim_, jr += num_results)
 		{
-			bolly |= index->knnSearch(&query_point[j], num_results, &output[j], &out_dist_sqr[0]);
+			bolly |= index->knnSearch(&query_points[j], num_results, &output[jr], &out_dist_sqr[0]);
 		}
 		return bolly;
      }
