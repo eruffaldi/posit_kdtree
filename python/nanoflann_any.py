@@ -39,7 +39,7 @@ def doknnsearch(index,qp,k,dims):
 	qp = np.array(qp).astype(np.float32)
 	if qp.size != dims:
 		raise Exception("Expected size of array as "+dims+" got " + qp.size)
-	n = index.knnSearchx(k,ndarray2ptr(qp,np.float32),ndarray2ptr(rb,rt))
+	n = index.knnSearchx(1, k,ndarray2ptr(qp,np.float32),ndarray2ptr(rb,rt))
 	print("answer items",n,"over",k)
 	return rb[0:n]
 
@@ -49,7 +49,7 @@ def doradiussearch(index,radius,qp,nres,dims):
 	qp = np.array(qp).astype(np.float32)
 	if qp.size != dims:
 		raise Exception("Expected size of array as "+dims+" got " + qp.size)
-	n = index.radiusSearchx(radius,ndarray2ptr(qp,np.float32),nres,ndarray2ptr(rb,rt))
+	n = index.radiusSearchx(1, nres, radius,ndarray2ptr(qp,np.float32),ndarray2ptr(rb,rt))
 	print("answer items",n,"over",nres)
 	return rb[0:n]
 
