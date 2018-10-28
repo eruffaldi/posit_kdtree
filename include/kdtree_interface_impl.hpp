@@ -330,19 +330,25 @@ public:
      	{
 		    typename my_kd_tree_float_t::BoundingBox bb;
 		    index_f->computeBoundingBox(bb);
+		    std::cout << "building using float tree" << std::endl;
      		index_f->buildIndex();
+		    std::cout << "copy float tree to target tree" << std::endl;
      		castcopyindex(index_f.get(),index.get());     		
+		    std::cout << "ready" << std::endl;
      		return true;
      	}
      	else if(index)
      	{
 		    typename my_kd_tree_t::BoundingBox bb;
 		    index->computeBoundingBox(bb);
+		    std::cout << "building using target type" << std::endl;
 		 	index->buildIndex();
+		    std::cout << "ready" << std::endl;
      		return true;
      	}
      	else
      	{
+		    std::cout << "no-index, nothing to build" << std::endl;
      		return false;
      	}
      }
