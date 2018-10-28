@@ -259,7 +259,7 @@ int main(int argc, char const *argv[])
                 for(int i = 0; i < st.size()/dim; i++)
                 {
                     float * pme = &st[i*dim];
-                    int n = p->knnSearch(args::get(aK),pme,&output[0]);
+                    int n = p->knnSearchN(1,args::get(aK),pme,&output[0]);
                     std::vector<picojson::value> jpi(n);
                     std::vector<picojson::value> jpd(n);
                     picojson::object ri;

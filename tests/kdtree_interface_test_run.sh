@@ -3,8 +3,8 @@ P=.
 $P/nanoflann_any_test list
 DIM="${DIM:-10}"
 KNN=12
-T1="${T1:-float}"
-T2="${T2:-double}"
+T1="${T1:-float32.native}"
+T2="${T2:-float64.native}"
 TREEPTS=1000
 TESTPTS=10
 #file is of floats

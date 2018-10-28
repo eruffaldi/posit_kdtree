@@ -354,15 +354,20 @@ public:
      }
 
 
-     virtual int knnSearch(int num_results, const float * query_point_f,IndexType * output)  const
+     virtual int knnSearchN(int N, int num_results, const float * query_point_f,IndexType * output)  const
      {
-     	if(!index || num_results < 1 || query_point_f == 0 || output == 0)
+     	if(!index || num_results < 1 || query_point_f == 0 || output == 0 || N <= 0)
      		return 0;
-		std::vector<num_t> query_point(dim_);
-		castcopy(query_point_f,query_point_f+dim_,query_point.begin());
+		std::vector<num_t> query_point(dim_*N);
+		castcopy(query_point_f,query_point_f+N*dim_,query_point.begin());
 
+		bool bolly = false;
 		std::vector<num_t> out_dist_sqr(num_results);
-		return index->knnSearch(&query_point[0], num_results, output, &out_dist_sqr[0]);
+		for(int i = 0, j = 0; i < N; i++, j+=dim_)
+		{
+			bolly |= index->knnSearch(&query_point[j], num_results, &output[j], &out_dist_sqr[0]);
+		}
+		return bolly;
      }
 
      virtual int radiusSearch(float asearch_radius, const float * query_point_f,  int num_results, IndexType * output)  const
