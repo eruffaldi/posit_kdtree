@@ -32,10 +32,10 @@ public:
      virtual void dumpData() = 0;
 
      /// returns up to K neighbors of the point expressed in float and the index output
-     virtual int knnSearchN(int N, int K, const float * point, IndexType * output) const = 0;
+     virtual int knnSearch(int N, int K, const float * point, IndexType * output) const = 0;
 
      /// performs a readius search with given radius centered at point up to num_results
-     virtual int radiusSearch(float search_radius, const float * point,  int num_results, IndexType * output) const = 0;
+     virtual int radiusSearch(int N, int max_num_results, float search_radius, const float * point, IndexType * output) const = 0;
 
      /// stats
      virtual void printStats() const = 0;

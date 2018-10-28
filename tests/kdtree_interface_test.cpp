@@ -259,7 +259,7 @@ int main(int argc, char const *argv[])
                 for(int i = 0; i < st.size()/dim; i++)
                 {
                     float * pme = &st[i*dim];
-                    int n = p->knnSearchN(1,args::get(aK),pme,&output[0]);
+                    int n = p->knnSearch(1,args::get(aK),pme,&output[0]);
                     std::vector<picojson::value> jpi(n);
                     std::vector<picojson::value> jpd(n);
                     picojson::object ri;
@@ -287,7 +287,7 @@ int main(int argc, char const *argv[])
                 for(int i = 0; i < st.size()/dim; i++)
                 {
                     float * pme = &st[i*dim];
-                    int n = p->radiusSearch(args::get(aR),pme,output.size(),&output[0]);
+                    int n = p->radiusSearch(1, args::get(aR),output.size(),pme,&output[0]);
                     std::vector<picojson::value> jpi(n);
                     std::vector<picojson::value> jpd(n);
                     picojson::object ri;

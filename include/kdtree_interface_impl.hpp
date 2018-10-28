@@ -354,36 +354,47 @@ public:
      }
 
 
-     virtual int knnSearchN(int N, int num_results, const float * query_points_f,IndexType * output)  const
+     virtual int knnSearch(int N, int num_results, const float * query_points_f,IndexType * output)  const
      {
      	if(!index || num_results < 1 || query_points_f == 0 || output == 0 || N <= 0)
      		return 0;
+     	// except if float == num_t
 		std::vector<num_t> query_points(dim_*N);
 		castcopy(query_points_f,query_points_f+N*dim_,query_points.begin());
+		const num_t * input = &query_points[0];
 
-		bool bolly = false;
+		int nEffective = 0;
 		std::vector<num_t> out_dist_sqr(num_results);
-		for(int i = 0, j = 0, jr = 0; i < N; i++, j += dim_, jr += num_results)
+		for(int i = 0;  i < N; i++, input += dim_, output += num_results)
 		{
-			bolly |= index->knnSearch(&query_points[j], num_results, &output[jr], &out_dist_sqr[0]);
+			nEffective = index->knnSearch(input, num_results, output, &out_dist_sqr[0]);
+			for(int j = nEffective; j < num_results; j++)
+					output[j] = -1;
 		}
-		return bolly;
+		return nEffective; // only last
      }
 
-     virtual int radiusSearch(float asearch_radius, const float * query_point_f,  int num_results, IndexType * output)  const
+     virtual int radiusSearch(int N, int max_num_results, float asearch_radius, const float * query_points_f,  IndexType * output)  const
      {
-     	if(!index || num_results < 1 || query_point_f == 0 || output == 0 || !(asearch_radius > 0))
+     	if(!index || max_num_results < 1 || query_points_f == 0 || output == 0 || !(asearch_radius > 0) || N <= 0)
      		return 0;
 		const num_t search_radius = static_cast<num_t>(asearch_radius);
 		std::vector<std::pair<IndexType,num_t> >   ret_matches;
 		nanoflann::SearchParams params;
-		std::vector<num_t> query_point(num_results);
-		castcopy(query_point_f,query_point_f+dim_,query_point.begin());
-		//params.sorted = false;
-		const IndexType nMatches = index->radiusSearch(&query_point[0], search_radius, ret_matches, params);	
-		for(int i = 0; i < nMatches; i++)
-			output[i] = ret_matches[i].first;
-		return nMatches;
+		std::vector<num_t> query_points(N*dim_);
+		castcopy(query_points_f,query_points_f+dim_,query_points.begin());
+		const num_t * input = &query_points[0];
+		int nMatches = 0;
+		for(int i = 0; i < N; i++, output += max_num_results, input += dim_)
+		{
+			//params.sorted = false;
+			size_t nMatches = index->radiusSearch(input, search_radius, ret_matches, params);	
+			for(int j = 0; j < nMatches; j++)
+				output[j] = ret_matches[j].first;
+			for(int j = nMatches; j < max_num_results; j++)
+				output[j] = -1;
+		}
+		return nMatches; // only last
      }
 
      virtual int itemsize() const { return sizeof(T); }
