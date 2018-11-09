@@ -25,7 +25,10 @@ kdd_factory_t cppPosit_factories[] = {
 	{"posit16_1.cppf", FACTORYPOSITF(int16_t, 16, 1, float,PositSpec::WithInf) },
 	{"posit32_2.cppf", FACTORYPOSITF(int32_t, 32, 2, double,PositSpec::WithInf) },
 
+
 	{"posit8_0ni.cpp", FACTORYPOSIT(int8_t, 8, 1, uint32_t,PositSpec::WithNanInf) },
+	{"posit10_1ni.cpp", FACTORYPOSIT(int16_t, 10, 1, uint32_t,PositSpec::WithNanInf) },
+	{"posit12_1ni.cpp", FACTORYPOSIT(int16_t, 12, 1, uint32_t,PositSpec::WithNanInf) },
 	{"posit16_1ni.cpp", FACTORYPOSIT(int16_t, 16, 1, uint32_t,PositSpec::WithNanInf) },
 	{"posit16_2ni.cpp", FACTORYPOSIT(int16_t, 16, 2, uint32_t,PositSpec::WithNanInf) },
 	{"posit16_3ni.cpp", FACTORYPOSIT(int16_t, 16, 3, uint32_t,PositSpec::WithNanInf) },
