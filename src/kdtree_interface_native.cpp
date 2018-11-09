@@ -1,5 +1,5 @@
 #include "kdtree_interface_impl.hpp"
-#include "float16native32.h"
+#include "float16native32.hpp"
 
  kdd_factory_t native_factories[] = {
 	// float16 built using native implementation
