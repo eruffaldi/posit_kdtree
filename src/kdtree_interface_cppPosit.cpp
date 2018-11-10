@@ -44,7 +44,7 @@ kdd_factory_t cppPosit_factories[] = {
 	//{"posit12_2", FACTORYPOSIT(int16_t, 12, POSIT12_ES, uint32_t, false) },
 
 	// tabulated
-	{"posit8_0.cpptab", FACTORY(posit8) } ,
+	{POSIT8_MODE  == PositSpec::WithNan ? "posit8_0ni.cpptab" : "posit8_0.cpptab", FACTORY(posit8) } ,
 	//{"posit12tab", FACTORY(posit12) } ,
 	{"" }
 	/*{"posit10", FACTORY(posit10) },*/
