@@ -23,10 +23,12 @@ public:
 }
 */
 
+// positive means fractionary part
+// negative means integer part
  kdd_factory_t fixedpoint_factories[] = {
-  {"fixed32_8.sg", FIXEDFACTORY(int32_t,-8) },
-	{"fixed32_16.sg", FIXEDFACTORY(int32_t,-16) },
-	{"fixed16_8.sg", FIXEDFACTORY(int16_t,-8) },
+  {"fixed32_8.sg", FIXEDFACTORY(int32_t,8) },
+	{"fixed32_16.sg", FIXEDFACTORY(int32_t,16) },
+	{"fixed16_8.sg", FIXEDFACTORY(int16_t,8) },
 	{""}
 };
 
