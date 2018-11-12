@@ -15,15 +15,15 @@ static_assert(POSIT8_ES == 0,"posit8 tabulated has 0 exp");
 kdd_factory_t cppPosit_factories[] = {
 
 	// like the soft posit
-	{"posit8_0.cpp", FACTORYPOSIT(int8_t, 8, 1, uint32_t,PositSpec::WithInf) },
-	{"posit16_1.cpp", FACTORYPOSIT(int16_t, 16, 1, uint32_t,PositSpec::WithInf) },
-	{"posit16_2.cpp", FACTORYPOSIT(int16_t, 16, 2, uint32_t,PositSpec::WithInf) },
-	{"posit16_3.cpp", FACTORYPOSIT(int16_t, 16, 3, uint32_t,PositSpec::WithInf) },
-	{"posit32_2.cpp", FACTORYPOSIT(int32_t, 32, 2, uint64_t,PositSpec::WithInf) },
+	{"posit8_1i.cpp", FACTORYPOSIT(int8_t, 8, 1, uint32_t,PositSpec::WithInf) },
+	{"posit16_1i.cpp", FACTORYPOSIT(int16_t, 16, 1, uint32_t,PositSpec::WithInf) },
+	{"posit16_2i.cpp", FACTORYPOSIT(int16_t, 16, 2, uint32_t,PositSpec::WithInf) },
+	{"posit16_3i.cpp", FACTORYPOSIT(int16_t, 16, 3, uint32_t,PositSpec::WithInf) },
+	{"posit32_2i.cpp", FACTORYPOSIT(int32_t, 32, 2, uint64_t,PositSpec::WithInf) },
 	
-	{"posit8_0.cppf", FACTORYPOSITF(int8_t, 8, 1, float,PositSpec::WithInf) },
-	{"posit16_1.cppf", FACTORYPOSITF(int16_t, 16, 1, float,PositSpec::WithInf) },
-	{"posit32_2.cppf", FACTORYPOSITF(int32_t, 32, 2, double,PositSpec::WithInf) },
+	{"posit8_1i.cppf", FACTORYPOSITF(int8_t, 8, 1, float,PositSpec::WithInf) },
+	{"posit16_1i.cppf", FACTORYPOSITF(int16_t, 16, 1, float,PositSpec::WithInf) },
+	{"posit32_2i.cppf", FACTORYPOSITF(int32_t, 32, 2, double,PositSpec::WithInf) },
 
 
 	{"posit8_0ni.cpp", FACTORYPOSIT(int8_t, 8, 1, uint32_t,PositSpec::WithNanInf) },
